@@ -1,0 +1,86 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+TODISASSEMBLE_SRCS_QUOTED := 
+OBJ_SRCS_OS_FORMAT := 
+S_UPPER_SRCS_QUOTED := 
+TODISASSEMBLE_SRCS := 
+O_SRCS_QUOTED := 
+LD_SRCS_OS_FORMAT := 
+ASM_UPPER_SRCS := 
+TODISASSEMBLE_SRCS_OS_FORMAT := 
+O_SRCS_OS_FORMAT := 
+ASM_UPPER_SRCS_QUOTED := 
+TOPREPROCESS_SRCS_OS_FORMAT := 
+CPP_SRCS := 
+O_SRCS := 
+C_UPPER_SRCS_OS_FORMAT := 
+ELF_SRCS := 
+TOPREPROCESS_SRCS_QUOTED := 
+S_SRCS_OS_FORMAT := 
+C++_SRCS_QUOTED := 
+CXX_SRCS := 
+C_SRCS_QUOTED := 
+CXX_SRCS_OS_FORMAT := 
+S_SRCS_QUOTED := 
+ELF_SRCS_QUOTED := 
+ELF_SRCS_OS_FORMAT := 
+CC_SRCS_OS_FORMAT := 
+ASM_SRCS_OS_FORMAT := 
+C_UPPER_SRCS_QUOTED := 
+C_SRCS_OS_FORMAT := 
+ASM_SRCS := 
+CC_SRCS_QUOTED := 
+S_UPPER_SRCS_OS_FORMAT := 
+CXX_SRCS_QUOTED := 
+S_UPPER_SRCS := 
+CPP_SRCS_QUOTED := 
+ASM_SRCS_QUOTED := 
+OBJ_SRCS_QUOTED := 
+LD_SRCS := 
+CPP_SRCS_OS_FORMAT := 
+C_UPPER_SRCS := 
+C++_SRCS_OS_FORMAT := 
+LD_SRCS_QUOTED := 
+C++_SRCS := 
+OBJ_SRCS := 
+S_SRCS := 
+CC_SRCS := 
+TOPREPROCESS_SRCS := 
+C_SRCS := 
+ASM_UPPER_SRCS_OS_FORMAT := 
+CC_DEPS_OS_FORMAT := 
+CPP_DEPS_QUOTED := 
+C_UPPER_DEPS := 
+SECONDARY_SIZE := 
+CC_DEPS_QUOTED := 
+CXX_DEPS_QUOTED := 
+C_UPPER_DEPS_QUOTED := 
+CXX_DEPS := 
+C++_DEPS_OS_FORMAT := 
+SECONDARY_SIZE_QUOTED := 
+CPP_DEPS_OS_FORMAT := 
+C++_DEPS_QUOTED := 
+SECONDARY_SIZE_OS_FORMAT := 
+C_DEPS_QUOTED := 
+OBJS_QUOTED := 
+C_DEPS := 
+C_DEPS_OS_FORMAT := 
+OBJS_OS_FORMAT := 
+CC_DEPS := 
+EXECUTABLES_OS_FORMAT := 
+C++_DEPS := 
+EXECUTABLES := 
+OBJS := 
+CXX_DEPS_OS_FORMAT := 
+C_UPPER_DEPS_OS_FORMAT := 
+EXECUTABLES_QUOTED := 
+CPP_DEPS := 
+
+# Every subdirectory with source files must be described here
+SUBDIRS := \
+Project_Settings/Linker_Files \
+Project_Settings/Startup_Code \
+src \
+
