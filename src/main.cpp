@@ -2,11 +2,13 @@
 #include "S32K148.h" /* include peripheral declarations S32K148 */
 
 
+
 // Include C headers (ie, non C++ headers) in this block
 extern "C" {
 #include "clocks_and_modes.h"
 #include "FTM.h"
 #include "ADC.h"
+
 }
 
 /* Extra declarations of ports to be used for testing*/
@@ -68,13 +70,9 @@ void Port_init_config(void)
 
 uint32_t count = 0;
 
-struct Motor{
-	double position;
-	double reference;
-};
 
 void count_revolutions(void){
-	if (FTM2->QDCTRL & FTM_QDCTRL_TOFDIR_MASK) {
+	if (FTM1->QDCTRL & FTM_QDCTRL_TOFDIR_MASK) {
 		count++;
 	}
 	else {
@@ -83,12 +81,12 @@ void count_revolutions(void){
 }
 
 void Motor_init(void){
-	FTM_QD_mode_Init(PCC_FTM2_INDEX, FTM2_Ovf_Reload_IRQn, FTM2, 4096, count_revolutions);
+	FTM_QD_mode_Init(PCC_FTM1_INDEX, FTM1_Ovf_Reload_IRQn, FTM1, 4096, count_revolutions);
 	FTM_PWM_mode_Init(PCC_FTM4_INDEX, FTM4); //10KHz cycle
 }
 
-double read_position(void){
-	double temp = (double) FTM2->CNT;
+double encoder_read(void){
+	double temp = (double) FTM1->CNT;
 	temp /= 4096;
 	temp += (double) count;
 	return temp;
@@ -100,7 +98,11 @@ double read_position(void){
 
 /* End of Motor control section (Provisional stuff) ================================================ */
 
-
+uint32_t temp_adc_func(void){
+	convertAdcChan(0b101100);		/* Convert Channel AD28 to pot on EVB */
+	while(adc_complete()==0){}      /* Wait for conversion complete flag */
+	return read_adc_chx();   	/* Get channel's conversion results in mv */
+}
 
 
 int main()
@@ -113,18 +115,17 @@ int main()
 
 	/* Testing section (Provisional stuff) ========================================================= */
 	Port_init_config();
-	ADC_init();            /* Init ADC resolution 12 bit*/
 
+	ADC_init();            /* Init ADC resolution 12 bit*/
 	Motor_init();
 
 	double pos = 0;
-	double adcval;
-	for(;;){
-		pos = read_position();
+	uint32_t adcval;
 
-		convertAdcChan(0b101100);		/* Convert Channel AD28 to pot on EVB */
-		while(adc_complete()==0){}      /* Wait for conversion complete flag */
-		adcval = read_adc_chx()/50;   	/* Get channel's conversion results in mv */
+	for(;;){
+		pos = encoder_read();
+		adcval = temp_adc_func();
+
 
 	}
 

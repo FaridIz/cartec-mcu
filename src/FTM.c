@@ -82,7 +82,7 @@ void set_FTM_PWM_dutycycle(FTM_Type * base, uint16_t value){
 
 
 /* Timer overflow interrupt routine indicating one mechanical revolution */
-void FTM2_Ovf_Reload_IRQHandler (void)	//FTM2_IRQHandler
+void FTM1_Ovf_Reload_IRQHandler (void)	//FTM2_IRQHandler
 {
 	FTM2->SC &= ~FTM_SC_TOF_MASK;
 	PTE->PTOR|=1<<23;
