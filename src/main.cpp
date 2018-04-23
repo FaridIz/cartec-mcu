@@ -6,41 +6,98 @@
 extern "C" {
 #include "clocks_and_modes.h"
 #include "FTM.h"
+#include "ADC.h"
 }
 
 /* Extra declarations of ports to be used for testing*/
-void extras(void)
+void Port_init_config(void)
 {
-	/* Enable clock for PORTA */
+	/* Enable clock for PORTs */
 	PCC->PCCn[PCC_PORTA_INDEX] = PCC_PCCn_CGC_MASK;
-	/* Configure ports to be used by FTM2*/
-	PORTA->PCR[12] = PORT_PCR_MUX(6); // Set PTA12 for FTM2 - Phase B input
-	PORTA->PCR[13] = PORT_PCR_MUX(6); // Set PTA13 for FTM2 - Phase A input
-
-	/* Enable clock for PORTE */
+	PCC->PCCn[PCC_PORTB_INDEX] = PCC_PCCn_CGC_MASK;
+	PCC->PCCn[PCC_PORTC_INDEX] = PCC_PCCn_CGC_MASK;
 	PCC->PCCn[PCC_PORTE_INDEX] = PCC_PCCn_CGC_MASK;
-	/* Configure PTE23 as output for Blue LED */
-	PORTE->PCR[23] = PORT_PCR_MUX(1);
-	PTE->PDDR=1<<23;
+
+	/* Configure GPIO outputs for LEDs */
+	PORTE->PCR[21] = PORT_PCR_MUX(1);	// Red
+	PORTE->PCR[22] = PORT_PCR_MUX(1);	// Green
+	PORTE->PCR[23] = PORT_PCR_MUX(1);	// Blue
+	PTE->PDDR |= (0b111<<21);
+
+	/* Configure SW3 AND SW4 as input buttons */
+	PORTC->PCR[12] = PORT_PCR_MUX(1)		// Port C12: MUX = GPIO
+				   | PORT_PCR_PFE(1);		// 			 Input filter enabled
+	PORTC->PCR[13] = PORT_PCR_MUX(1)		// Port C13: MUX = GPIO
+				   | PORT_PCR_PFE(1);		// 			 Input filter enabled
+	PTC->PDDR &= ~(0b11<<12);				// Data direction = input
+
+
+	/* Steering encoder */
+	PORTA->PCR[1] = PORT_PCR_MUX(5); 		// Port  A1: FTM1_QD_PHA
+	PORTB->PCR[2] = PORT_PCR_MUX(4); 		// Port  B2: FTM1_QD_PHB
+
+	/* Driver VNH5019 */
+	PORTB->PCR[3] = PORT_PCR_MUX(1);		// Port  B3: GPIO-output	M2 EN/DIAG
+	PORTB->PCR[0] = PORT_PCR_MUX(6);		// Port  B0: FTM4_CH6		M2 PWM
+	PTB->PDDR |= (0b1001);
+	PORTA->PCR[30] = PORT_PCR_MUX(2);		// Port A30: FTM5_CH5		M1 PWM
+	PORTA->PCR[31] = PORT_PCR_MUX(1);		// Port A31: GPIO-output	M2 INB
+	PTA->PDDR |= (0b11<<30);
+	PORTD->PCR[14] = PORT_PCR_MUX(1);		// Port D14: GPIO-output	M2 INA
+	PORTD->PCR[15] = PORT_PCR_MUX(1);		// Port D15: GPIO-output	M1 EN/DIAG
+	PORTD->PCR[17] = PORT_PCR_MUX(1);		// Port D17: GPIO-output	M1 INB
+	PTD->PDDR |= (0b1011<<14);
+	PORTC->PCR[11] = PORT_PCR_MUX(1);		// Port C11: GPIO-output	M1 INA
+	PTC->PDDR |= (0b1<<11);
+
+	/* Cruise control driver */
+	PORTC->PCR[29] = PORT_PCR_MUX(2);		// Port C29: FTM5_CH2		ENA
+	PORTC->PCR[30] = PORT_PCR_MUX(1);		// Port C30: GPIO-output	IN1
+	PORTC->PCR[31] = PORT_PCR_MUX(1);		// Port C31: GPIO-output	IN2
+											// Port ###: GPIO-output	ENB/IN3
+	PTC->PDDR |= (0b111<<29);
+
+	/* UART ROSserial */
+	PORTC->PCR[6] = PORT_PCR_MUX(2);         /* Port  C6: LPUART1_RX */
+	PORTC->PCR[7] = PORT_PCR_MUX(2);         /* Port  C7: LPUART1_TX */
 }
 
 
+
 /* Motor control section (Provisional stuff) ====================================================== */
-double count = 0;
+
+uint32_t count = 0;
+
+struct Motor{
+	double position;
+	double reference;
+};
 
 void count_revolutions(void){
-	if (FTM2->QDCTRL & FTM_QDCTRL_TOFDIR_MASK){
+	if (FTM2->QDCTRL & FTM_QDCTRL_TOFDIR_MASK) {
 		count++;
 	}
-	else{
+	else {
 		count--;
 	}
 }
 
-double position(void){
-	double temp = (double) FTM2->CNT;
-	return count + (temp/4096);
+void Motor_init(void){
+	FTM_QD_mode_Init(PCC_FTM2_INDEX, FTM2_Ovf_Reload_IRQn, FTM2, 4096, count_revolutions);
+	FTM_PWM_mode_Init(PCC_FTM4_INDEX, FTM4); //10KHz cycle
 }
+
+double read_position(void){
+	double temp = (double) FTM2->CNT;
+	temp /= 4096;
+	temp += (double) count;
+	return temp;
+}
+
+
+
+
+
 /* End of Motor control section (Provisional stuff) ================================================ */
 
 
@@ -55,30 +112,25 @@ int main()
 
 
 	/* Testing section (Provisional stuff) ========================================================= */
-	extras();
-	FTM_QD_mode_Init(PCC_FTM2_INDEX, FTM2_Ovf_Reload_IRQn, FTM2, 4096, count_revolutions);
+	Port_init_config();
+	ADC_init();            /* Init ADC resolution 12 bit*/
+
+	Motor_init();
 
 	double pos = 0;
+	double adcval;
 	for(;;){
-		pos = position();
+		pos = read_position();
+
+		convertAdcChan(0b101100);		/* Convert Channel AD28 to pot on EVB */
+		while(adc_complete()==0){}      /* Wait for conversion complete flag */
+		adcval = read_adc_chx()/50;   	/* Get channel's conversion results in mv */
+
 	}
 
 
 	/* End of Testing section (Provisional stuff) ================================================== */
 
-
-
-
-	/* to avoid the warning message for GHS: statement is unreachable*/
-#if defined (__ghs__)
-#pragma ghs nowarning 111
-#endif
-#if defined (__ICCARM__)
-#pragma diag_suppress=Pe111
-#endif
 	return 0;
 }
-
-
-
 
