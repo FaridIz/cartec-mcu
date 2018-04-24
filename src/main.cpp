@@ -1,14 +1,12 @@
 
-#include "S32K148.h" /* include peripheral declarations S32K148 */
-
-
+#include "system.h" /* include peripheral declarations S32K148 */
+#include "test_loop.h"
 
 // Include C headers (ie, non C++ headers) in this block
 extern "C" {
 #include "clocks_and_modes.h"
 #include "FTM.h"
 #include "ADC.h"
-
 }
 
 /* Extra declarations of ports to be used for testing*/
@@ -65,7 +63,6 @@ void Port_init_config(void)
 }
 
 
-
 /* Motor control section (Provisional stuff) ====================================================== */
 
 uint32_t count = 0;
@@ -95,7 +92,6 @@ double encoder_read(void){
 
 
 
-
 /* End of Motor control section (Provisional stuff) ================================================ */
 
 uint32_t temp_adc_func(void){
@@ -114,18 +110,19 @@ int main()
 
 
 	/* Testing section (Provisional stuff) ========================================================= */
-	Port_init_config();
+//	Port_init_config();
+//	ADC_init();            /* Init ADC resolution 12 bit*/
+//	Motor_init();
+//	double pos = 0;
+//	uint32_t adcval;
 
-	ADC_init();            /* Init ADC resolution 12 bit*/
-	Motor_init();
-
-	double pos = 0;
-	uint32_t adcval;
+	test_setup();
 
 	for(;;){
-		pos = encoder_read();
-		adcval = temp_adc_func();
+//		pos = encoder_read();
+//		adcval = temp_adc_func();
 
+		test_loop();
 
 	}
 
