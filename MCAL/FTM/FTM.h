@@ -15,8 +15,8 @@
 typedef void (*vfcn_callback)(void);
 
 void FTM_QD_mode_Init(FTM_QuadDec_config_t config, vfcn_callback callback);
-//void FTM_PWM_mode_Init(QuadDec_config_t config);
-//void set_FTM_PWM_dutycycle(FTM_Type * base, uint16_t value);
+void FTM_PWM_mode_Init(FTM_PWM_config_t config);
+void PWM_set_duty(PWM_channel, uint32_t value);
 
 
 //void FTM2_Ovf_Reload_IRQHandler (void);

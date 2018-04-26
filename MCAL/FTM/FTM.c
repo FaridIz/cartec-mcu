@@ -5,8 +5,8 @@
  *      Author: Farid
  */
 
-
 #include "FTM.h"
+
 
 static vfcn_callback ftm_callback = 0;
 
@@ -43,44 +43,51 @@ void FTM_QD_mode_Init(FTM_QuadDec_config_t config, vfcn_callback callback)
 }
 
 
+void FTM_PWM_mode_Init(FTM_PWM_config_t config)
+{
+	FTM_Type * FTM_base = config.FTM_config.FTM_instance;
+
+	PCC->PCCn[config.FTM_config.ip_index] &= ~PCC_PCCn_CGC_MASK; 	/* Ensure clk disabled for config */
+	PCC->PCCn[config.FTM_config.ip_index] |= PCC_PCCn_PCS(0b001)	/* Clock Source=1 */
+	                    				  |  PCC_PCCn_CGC_MASK;  	/* Enable clock for FTM regs */
+
+	/* Write protect to registers disabled (default) */
+	FTM_base->MODE |= FTM_MODE_WPDIS_MASK;
+
+	/* Preescaler selection */
+	FTM_base->SC |= FTM_SC_PS(config.preescaler);	/* TOIE (Timer Overflow Interrupt Ena) = 0 (default) */
+		                            				/* CPWMS (Center aligned PWM Select) = 0 (default, up count) */
+		                            				/* CLKS (Clock source) = 0 (default, no clock; FTM disabled) */
+
+	/* FTM mode settings used: DECAPENx, MCOMBINEx, COMBINEx=0  */
+	FTM_base->COMBINE = 0x00000000;
+	/* Polarity for all channels is active high (default) */
+	FTM_base->POL = 0x00000000;
+
+	/* Enable PWM channels */
+	FTM_base->SC |= config.channels << FTM_SC_PWMEN0_SHIFT;
+
+	/* PWM configuration */
+	FTM_base->MOD = config.mod - 1 ;					/* FTM counter final value (used for PWM mode) */
+		                            					/* FTM Period = MOD-CNTIN+0x0001 ctr clks */
+	int i;
+	for(i=0; i<8; i++){
+		if( config.channels & (1<<i) ){
+			FTM_base->CONTROLS[i].CnSC = 0x00000028;	/* FTM channel i: edge-aligned PWM, low true pulses */
+				                                      	/* CHIE (Chan Interrupt Ena) = 0 (default) */
+				                                      	/* MSB:MSA (chan Mode Select)=0b10, Edge Align PWM */
+				                                      	/* ELSB:ELSA (chan Edge/Level Select)=0b10, low true */
+			FTM_base->CONTROLS[i].CnV =  0;				/* FTM channel i compare value (~0% duty cycle) */
+		}
+	}
+
+	/* Start FTM counter with clk source = external clock */
+	FTM_base->SC |= FTM_SC_CLKS(3);
+}
 
 
-
-//void FTM_PWM_mode_Init(QuadDec_config_t QuadDec_config)
-//{
-//	PCC->PCCn[QuadDec_config.FTM_config.ip_index] &= ~PCC_PCCn_CGC_MASK; 	/* Ensure clk disabled for config */
-//	PCC->PCCn[QuadDec_config.FTM_config.ip_index] |= PCC_PCCn_PCS(0b001)	/* Clock Src=1, 8 MHz SOSCDIV1_CLK */
-//	                    						  |  PCC_PCCn_CGC_MASK;   /* Enable clock for FTM regs */
-//
-//	/* Write protect to registers disabled (default) */
-//	base->MODE |= FTM_MODE_WPDIS_MASK;
-//
-//
-//	base->SC = 0x00030003;	 	/* Enable PWM channel 0 output*/
-//	                            /* Enable PWM channel 1 output*/
-//	                            /* TOIE (Timer Overflow Interrupt Ena) = 0 (default) */
-//	                            /* CPWMS (Center aligned PWM Select) = 0 (default, up count) */
-//	                            /* CLKS (Clock source) = 0 (default, no clock; FTM disabled) */
-//	                            /* PS (Prescaler factor) = 3. Prescaler = 8 */
-//	base->COMBINE = 0x00000000;	/* FTM mode settings used: DECAPENx, MCOMBINEx, COMBINEx=0  */
-//	base->POL = 0x00000000;		/* Polarity for all channels is active high (default) */
-//
-//	/* PWM configuration */
-//	base->MOD = 100 -1 ;					/* FTM1 counter final value (used for PWM mode) */
-//		                            		/* FTM1 Period = MOD-CNTIN+0x0001 ~= 100 ctr clks  */
-//		                            		/* 8MHz /128 = 1MHz ->  ticks -> 10KHz */
-//	base->CONTROLS[1].CnSC = 0x00000028;  	/* FTM0 ch1: edge-aligned PWM, low true pulses */
-//	                                      	/* CHIE (Chan Interrupt Ena) = 0 (default) */
-//	                                      	/* MSB:MSA (chan Mode Select)=0b10, Edge Align PWM*/
-//	                                      	/* ELSB:ELSA (chan Edge/Level Select)=0b10, low true */
-//	base->CONTROLS[1].CnV =  75;       	/* FTM0 ch1 compare value (~75% duty cycle) */ // 100*0.75
-//
-//	base->SC |= FTM_SC_CLKS(3);	/* Start FTM0 counter with clk source = external clock (SOSCDIV1_CLK)*/
-//}
-
-
-void set_FTM_PWM_dutycycle(FTM_Type * base, uint16_t value){
-	base->CONTROLS[1].CnV =  value;
+void PWM_set_duty(PWM_channel channel, uint32_t value){
+	channel.FTM_instance->CONTROLS[channel.number].CnV =  value;
 }
 
 
@@ -88,9 +95,7 @@ void set_FTM_PWM_dutycycle(FTM_Type * base, uint16_t value){
 void FTM1_Ovf_Reload_IRQHandler (void)	//FTM2_IRQHandler
 {
 	FTM1->SC &= ~FTM_SC_TOF_MASK;
-//	PTE->PTOR|=1<<23;
-	if (ftm_callback != 0)
-	{
+	if (ftm_callback != 0){
 		ftm_callback();
 	}
 }
