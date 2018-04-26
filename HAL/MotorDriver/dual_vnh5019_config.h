@@ -12,7 +12,6 @@
 #include "GPIO.h"
 //#include "FTM.h"
 
-extern PORT_config_t dummy;
 extern PORT_config_t M1_EN;
 extern PORT_config_t M1_INA;
 extern PORT_config_t M1_INB;

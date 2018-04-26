@@ -21,13 +21,6 @@ void vnh5019_channel_2_init(void){
 	PORT_init(M2_PWM_port);
 }
 
-PORT_config_t dummy = {	// Green LED, just for testing
-	.port	= ePortE,
-	.pin	= 22,
-	.mux	= eMuxAsGPIO,
-	.dir	= eOutput,
-};
-
 PORT_config_t M1_EN = {
 	.port	= ePortD,
 	.pin	= 15,
