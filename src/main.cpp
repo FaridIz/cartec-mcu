@@ -1,12 +1,12 @@
 
 #include "system.h" /* include peripheral declarations S32K148 */
-#include "test_loop.h"
+
 
 // Include C headers (ie, non C++ headers) in this block
 extern "C" {
 #include "clocks_and_modes.h"
-#include "FTM.h"
 #include "ADC.h"
+#include "Steering.h"
 }
 
 /* Extra declarations of ports to be used for testing*/
@@ -66,31 +66,11 @@ void Port_init_config(void)
 
 /* Motor control section (Provisional stuff) ====================================================== */
 
-uint32_t count = 0;
-
-
-void count_revolutions(void){
-	if (FTM1->QDCTRL & FTM_QDCTRL_TOFDIR_MASK) {
-		count++;
-	}
-	else {
-		count--;
-	}
-}
 
 void Motor_init(void){
-	FTM_QD_mode_Init(PCC_FTM1_INDEX, FTM1_Ovf_Reload_IRQn, FTM1, 4096, count_revolutions);
-	FTM_PWM_mode_Init(PCC_FTM4_INDEX, FTM4); //10KHz cycle
+//	FTM_QD_mode_Init(PCC_FTM1_INDEX, FTM1_Ovf_Reload_IRQn, FTM1, 4096, count_revolutions);
+//	FTM_PWM_mode_Init(PCC_FTM4_INDEX, FTM4); //10KHz cycle
 }
-
-double encoder_read(void){
-	double temp = (double) FTM1->CNT;
-	temp /= 4096;
-	temp += (double) count;
-	return temp;
-}
-
-
 
 
 /* End of Motor control section (Provisional stuff) ================================================ */
@@ -114,16 +94,19 @@ int main()
 //	Port_init_config();
 //	ADC_init();            /* Init ADC resolution 12 bit*/
 //	Motor_init();
-//	double pos = 0;
+
 //	uint32_t adcval;
 
-	test_setup();
+	double pos = 0;
+	Steering_init();
+
+
 
 	for(;;){
-//		pos = encoder_read();
+		pos = steering_encoder_read();
 //		adcval = temp_adc_func();
 
-		test_loop();
+
 
 	}
 
