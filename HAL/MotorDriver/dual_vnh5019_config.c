@@ -11,14 +11,14 @@ void vnh5019_channel_1_init(void){
 	GPIO_pinInit(M1_EN);
 	GPIO_pinInit(M1_INA);
 	GPIO_pinInit(M1_INB);
-	GPIO_pinInit(M1_PWM);
+	PORT_init(M1_PWM_port);
 }
 
 void vnh5019_channel_2_init(void){
 	GPIO_pinInit(M2_EN);
 	GPIO_pinInit(M2_INA);
 	GPIO_pinInit(M2_INB);
-	GPIO_pinInit(M2_PWM);
+	PORT_init(M2_PWM_port);
 }
 
 PORT_config_t dummy = {	// Green LED, just for testing
@@ -49,7 +49,7 @@ PORT_config_t M1_INB = {
 	.dir	= eOutput,
 };
 
-PORT_config_t M1_PWM = {
+PORT_config_t M1_PWM_port = {
 	.port	= ePortA,
 	.pin	= 30,
 	.mux	= eMux2,	// FTM5_CH5
@@ -77,7 +77,7 @@ PORT_config_t M2_INB = {
 	.dir	= eOutput,
 };
 
-PORT_config_t M2_PWM = {
+PORT_config_t M2_PWM_port = {
 	.port	= ePortB,
 	.pin	= 0,
 	.mux	= eMux6,	// FTM4_CH6

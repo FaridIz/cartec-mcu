@@ -10,17 +10,17 @@
 
 #include "PORT_config.h"
 #include "GPIO.h"
-#include "FTM.h"
+//#include "FTM.h"
 
 extern PORT_config_t dummy;
 extern PORT_config_t M1_EN;
 extern PORT_config_t M1_INA;
 extern PORT_config_t M1_INB;
-extern PORT_config_t M1_PWM;
+extern PORT_config_t M1_PWM_port;
 extern PORT_config_t M2_EN;
 extern PORT_config_t M2_INA;
 extern PORT_config_t M2_INB;
-extern PORT_config_t M2_PWM;
+extern PORT_config_t M2_PWM_port;
 
 void vnh5019_channel_1_init(void);
 void vnh5019_channel_2_init(void);
