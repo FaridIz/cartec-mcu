@@ -100,7 +100,7 @@ int main()
 	double pos = 0;
 	Steering_init();
 
-
+	PWM_set_duty(M1_PWM, 0);
 
 	for(;;){
 		pos = steering_encoder_read();

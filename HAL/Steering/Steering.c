@@ -8,6 +8,8 @@
 
 #include "Steering.h"
 
+/* =================================================================================== */
+
 FTM_QuadDec_config_t steering_encoder = {
 		/* Encoder channel A */
 		.port[0].port	= ePortA,
@@ -28,12 +30,49 @@ FTM_QuadDec_config_t steering_encoder = {
 		.quadmode 	= phaseA_phaseB
 };
 
+FTM_PWM_config_t channel_1_PWM = {
+		.FTM_config.FTM_instance 	 = FTM5,
+		.FTM_config.ip_index 		 = PCC_FTM5_INDEX,
+		.FTM_config.FTM_clock_source = SOSCDIV1_CLK,	/* 8 MHz SOSCDIV1_CLK */
+
+		.preescaler = PS_2,			/* (8MHz)/2 = 4MHz */
+		.channels	= 0b100000,		/* Channel 5 */
+		.mod		= 1000			/* 4KHz PWM period */
+};
+
+FTM_PWM_config_t channel_2_PWM = {
+		.FTM_config.FTM_instance 	 = FTM4,
+		.FTM_config.ip_index 		 = PCC_FTM4_INDEX,
+		.FTM_config.FTM_clock_source = SOSCDIV1_CLK,	/* 8 MHz SOSCDIV1_CLK */
+
+		.preescaler = PS_2,			/* (8MHz)/2 = 4MHz */
+		.channels	= 0b1000000,	/* Channel 6 */
+		.mod		= 1000			/* 4KHz PWM period */
+};
+
+PWM_channel M1_PWM = {
+		.FTM_instance = FTM5,
+		.number	  = 5
+};
+
+PWM_channel M2_PWM = {
+		.FTM_instance = FTM4,
+		.number	  = 6
+};
+
+/* =================================================================================== */
+
 int32_t count = 0;
 void count_revolutions(void);
 
+/* =================================================================================== */
+
 void Steering_init(void){
+	/* Encoder initialization */
 	FTM_QD_mode_Init(steering_encoder, count_revolutions);
-//	vh5019_channel_1_init();
+	/* Motor driver initialization */
+	vnh5019_channel_1_init();
+	FTM_PWM_mode_Init(channel_1_PWM);
 }
 
 void count_revolutions(void){
