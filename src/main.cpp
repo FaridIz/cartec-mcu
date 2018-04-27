@@ -6,6 +6,7 @@ extern "C" {
 #include "clocks_and_modes.h"
 #include "ADC.h"
 #include "Steering.h"
+#include "lpi2c.h"
 }
 
 
