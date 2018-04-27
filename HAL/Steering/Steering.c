@@ -35,9 +35,9 @@ FTM_PWM_config_t channel_1_PWM = {
 		.FTM_config.ip_index 		 = PCC_FTM5_INDEX,
 		.FTM_config.FTM_clock_source = SOSCDIV1_CLK,	/* 8 MHz SOSCDIV1_CLK */
 
-		.preescaler = PS_2,			/* (8MHz)/2 = 4MHz */
+		.preescaler = PS_1,			/* (8MHz)/1 = 8MHz */
 		.channels	= 0b100000,		/* Channel 5 */
-		.mod		= 1000			/* 4KHz PWM period */
+		.mod		= 400			/* 20KHz PWM period */
 };
 
 FTM_PWM_config_t channel_2_PWM = {
@@ -45,9 +45,9 @@ FTM_PWM_config_t channel_2_PWM = {
 		.FTM_config.ip_index 		 = PCC_FTM4_INDEX,
 		.FTM_config.FTM_clock_source = SOSCDIV1_CLK,	/* 8 MHz SOSCDIV1_CLK */
 
-		.preescaler = PS_2,			/* (8MHz)/2 = 4MHz */
+		.preescaler = PS_1,			/* (8MHz)/1 = 8MHz */
 		.channels	= 0b1000000,	/* Channel 6 */
-		.mod		= 1000			/* 4KHz PWM period */
+		.mod		= 400			/* 20KHz PWM period */
 };
 
 PWM_channel M1_PWM = {
