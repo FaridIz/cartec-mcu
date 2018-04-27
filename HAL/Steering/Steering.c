@@ -24,7 +24,7 @@ FTM_QuadDec_config_t steering_encoder = {
 		/* FTM module configuration */
 		.FTM_config.FTM_instance 	 = FTM1,
 		.FTM_config.ip_index 		 = PCC_FTM1_INDEX,
-		.FTM_config.FTM_clock_source = SPLLDIV1_CLK,
+		.FTM_config.FTM_clock_source = SPLLDIV1,
 		.Ovf_IRQn	= FTM1_Ovf_Reload_IRQn,
 		.mod		= 4096,							/* Ticks per revolution */
 		.quadmode 	= phaseA_phaseB
@@ -33,7 +33,7 @@ FTM_QuadDec_config_t steering_encoder = {
 FTM_PWM_config_t channel_1_PWM = {
 		.FTM_config.FTM_instance 	 = FTM5,
 		.FTM_config.ip_index 		 = PCC_FTM5_INDEX,
-		.FTM_config.FTM_clock_source = SOSCDIV1_CLK,	/* 8 MHz SOSCDIV1_CLK */
+		.FTM_config.FTM_clock_source = SOSCDIV1,	/* 8 MHz SOSCDIV1_CLK */
 
 		.preescaler = PS_1,			/* (8MHz)/1 = 8MHz */
 		.channels	= 0b100000,		/* Channel 5 */
@@ -43,7 +43,7 @@ FTM_PWM_config_t channel_1_PWM = {
 FTM_PWM_config_t channel_2_PWM = {
 		.FTM_config.FTM_instance 	 = FTM4,
 		.FTM_config.ip_index 		 = PCC_FTM4_INDEX,
-		.FTM_config.FTM_clock_source = SOSCDIV1_CLK,	/* 8 MHz SOSCDIV1_CLK */
+		.FTM_config.FTM_clock_source = SOSCDIV1,	/* 8 MHz SOSCDIV1_CLK */
 
 		.preescaler = PS_1,			/* (8MHz)/1 = 8MHz */
 		.channels	= 0b1000000,	/* Channel 6 */
@@ -90,3 +90,5 @@ double steering_encoder_read(void){
 	temp += (double) count;
 	return temp;
 }
+
+/* =================================================================================== */
