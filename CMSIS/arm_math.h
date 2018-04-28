@@ -312,7 +312,7 @@
   #error Unknown compiler
 #endif
 
-
+#define ARM_MATH_CM4			/* Added by user to compile for board S32K148 */
 #define __CMSIS_GENERIC         /* disable NVIC and Systick functions */
 
 #if defined(ARM_MATH_CM7)
