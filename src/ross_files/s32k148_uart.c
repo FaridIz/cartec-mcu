@@ -1,7 +1,6 @@
 #include "S32K148.h"
 #include "s32k148_uart.h"
-
-#include "../drivers/LPUART.h"
+#include "LPUART.h"
 
 
 #define BAUD 57600
