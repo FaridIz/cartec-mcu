@@ -2,8 +2,8 @@
 #define _ROS_H_
 
 
-#include "../ros_serial/ros_lib/ros/node_handle.h"
-#include "../ros_serial/s32k148Hardware.h"
+#include "node_handle.h"
+#include "s32k148Hardware.h"
 
 
 namespace ros {
