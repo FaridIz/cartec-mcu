@@ -5,7 +5,7 @@
  *      Author: B46911
  */
 
-#include "lptmr.h"
+#include "LPTMR.h"
 
 #if (defined(MCU_S32K142) || defined(MCU_S32K144) || defined(MCU_S32K146) || defined(MCU_S32K148))
 
