@@ -4,7 +4,7 @@
 // Include C headers (ie, non C++ headers) in this block
 extern "C" {
 #include "clocks_and_modes.h"
-#include "ADC.h"
+//#include "ADC.h"
 #include "Steering.h"
 }
 
@@ -40,12 +40,6 @@ void Port_init_config(void)
 	PTC->PDDR |= (0b111<<29);
 }
 
-/* Temporary ADC function for testing */
-uint32_t temporary_adc_func(void){
-	convertAdcChan(0b101100);		/* Convert Channel AD28 to pot on EVB */
-	while(adc_complete()==0){}      /* Wait for conversion complete flag */
-	return read_adc_chx();			/* Get channel's conversion results in mv */
-}
 
 
 int main()
@@ -58,8 +52,7 @@ int main()
 	/* Testing section (Provisional stuff) ========================================================= */
 
 //	Port_init_config();
-//	ADC_init();            /* Init ADC resolution 12 bit*/
-//	uint32_t adcval;
+
 
 	double pos = 0;
 	Steering_init();
@@ -69,7 +62,7 @@ int main()
 
 	for(;;){
 		pos = steering_encoder_read();
-//		adcval = temporary_adc_func();
+		steering_manual_ctrl();
 
 	}
 

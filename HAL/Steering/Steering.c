@@ -64,6 +64,9 @@ PWM_channel M2_PWM = {
 
 int32_t count = 0;
 void count_revolutions(void);
+uint32_t potentiometer_position(void);
+#define pot_vs_pwmduty_relation  (2000/channel_1_PWM.mod)
+
 
 /* =================================================================================== */
 
@@ -73,6 +76,8 @@ void Steering_init(void){
 	/* Motor driver initialization */
 	vnh5019_channel_1_init();
 	FTM_PWM_mode_Init(channel_1_PWM);
+	/* Init ADC resolution 12 bit*/
+	ADC_init();
 }
 
 void count_revolutions(void){
@@ -92,3 +97,30 @@ double steering_encoder_read(void){
 }
 
 /* =================================================================================== */
+
+uint32_t potentiometer_position(void){
+	convertAdcChan(0b101100);		/* Convert Channel AD28 to pot on EVB */
+	while(adc_complete()==0){}      /* Wait for conversion complete flag */
+	return read_adc_chx();			/* Get channel's conversion results in mv (0-5000) */
+}
+
+void steering_manual_ctrl(void){
+	uint16_t value = potentiometer_position();
+	uint16_t pwm_duty = 0;
+
+	if(value <= 2000){
+		pwm_duty = (2000 - value) / pot_vs_pwmduty_relation; //e.g. (0-2000)/(-5) = 400, (2000-2000)/(-5) = 0
+		GPIO_setPin(M1_INA);
+		GPIO_clearPin(M1_INB);
+	}
+	else if((2000 < value) && (value < 3000)){
+		GPIO_clearPin(M1_INA);
+		GPIO_clearPin(M1_INB);
+	}
+	else if(value >= 3000){
+		pwm_duty = (value - 3000)/pot_vs_pwmduty_relation;
+		GPIO_clearPin(M1_INA);
+		GPIO_setPin(M1_INB);
+	}
+	PWM_set_duty(M1_PWM, pwm_duty);
+}

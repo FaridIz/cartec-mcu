@@ -7,9 +7,11 @@
 #define ADC_H_
 #include "S32K148.h"
 
-void convertAdcChan(uint16_t);
+
 void ADC_init(void);
+void convertAdcChan(uint16_t);
 uint8_t adc_complete(void);
 uint32_t read_adc_chx(void);
+
 
 #endif /* ADC_H_ */
