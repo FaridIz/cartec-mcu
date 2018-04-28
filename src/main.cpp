@@ -4,8 +4,8 @@
 // Include C headers (ie, non C++ headers) in this block
 extern "C" {
 #include "clocks_and_modes.h"
-//#include "ADC.h"
 #include "Steering.h"
+#include "arm_math.h"
 }
 
 
