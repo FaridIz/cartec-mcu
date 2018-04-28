@@ -15,10 +15,10 @@
 
 typedef enum{
 	TCLK = 0,
-	SOSCDIV1_CLK = 1,
-	SIRCDIV1_CLK = 2,
-	FIRCDIV1_CLK = 3,
-	SPLLDIV1_CLK = 6
+	SOSCDIV1 = 1,
+	SIRCDIV1 = 2,
+	FIRCDIV1 = 3,
+	SPLLDIV1 = 6
 }FTM_clock_source_t;
 
 typedef enum{
