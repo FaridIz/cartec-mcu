@@ -1,5 +1,9 @@
 
 #include "system.h" /* include peripheral declarations S32K148 */
+#include "std_msgs/String.h"
+#include "std_msgs/Float32MultiArray.h"
+#include "S32K148.h"
+#include "ros.h"
 
 // Include C headers (ie, non C++ headers) in this block
 extern "C" {
@@ -7,44 +11,26 @@ extern "C" {
 #include "Steering.h"
 }
 
+// Needed for AVR to use virtual functions
+extern "C" void __cxa_pure_virtual(void);
+void __cxa_pure_virtual(void) {}
 
-/* Extra declarations of ports to be used, not already under implementation*/
-void Port_init_config(void)
-{
-	/* Enable clock for PORTs */
-	PCC->PCCn[PCC_PORTA_INDEX] = PCC_PCCn_CGC_MASK;
-	PCC->PCCn[PCC_PORTB_INDEX] = PCC_PCCn_CGC_MASK;
-	PCC->PCCn[PCC_PORTC_INDEX] = PCC_PCCn_CGC_MASK;
-	PCC->PCCn[PCC_PORTD_INDEX] = PCC_PCCn_CGC_MASK;
-	PCC->PCCn[PCC_PORTE_INDEX] = PCC_PCCn_CGC_MASK;
-
-	/* Configure GPIO outputs for board LEDs */
-	PORTE->PCR[21] = PORT_PCR_MUX(1);	// Red
-	PORTE->PCR[22] = PORT_PCR_MUX(1);	// Green
-	PORTE->PCR[23] = PORT_PCR_MUX(1);	// Blue
-	PTE->PDDR |= (0b111<<21);
-
-	/* Configure SW3 AND SW4 as input buttons */
-	PORTC->PCR[12] = PORT_PCR_MUX(1)		// Port C12: MUX = GPIO
-				   | PORT_PCR_PFE(1);		// 			 Input filter enabled
-	PORTC->PCR[13] = PORT_PCR_MUX(1)		// Port C13: MUX = GPIO
-				   | PORT_PCR_PFE(1);		// 			 Input filter enabled
-	PTC->PDDR &= ~(0b11<<12);				// Data direction = input
-
-	/* Cruise control driver */
-	PORTC->PCR[29] = PORT_PCR_MUX(2);		// Port C29: FTM5_CH2		ENA
-	PORTC->PCR[30] = PORT_PCR_MUX(1);		// Port C30: GPIO-output	IN1
-	PORTC->PCR[31] = PORT_PCR_MUX(1);		// Port C31: GPIO-output	IN2
-											// Port ###: GPIO-output	ENB/IN3
-	PTC->PDDR |= (0b111<<29);
-}
-
+// Function prototypes
+void callback(const std_msgs::Float32MultiArray &msg);
 
 void LPIT0_init (void) {
   PCC->PCCn[PCC_LPIT_INDEX] = PCC_PCCn_PCS(6);    /* Clock Src = 6 (SPLL2_DIV2_CLK)*/
   PCC->PCCn[PCC_LPIT_INDEX] |= PCC_PCCn_CGC_MASK; /* Enable clk to LPIT0 regs */
   LPIT0->MCR = 0x00000001;    /* DBG_EN-0: Timer chans stop in Debug mode */
 }
+
+// Provisional test function prototypes
+void init_led(void);
+void led_on(void);
+void led_toggle(void);
+
+ros::Publisher pub("", 0);
+// Subscribers are declared in the main scope due to a compiler bug
 
 /* Polling delay function */
 void delay(double ms){
@@ -57,20 +43,16 @@ void delay(double ms){
 	  LPIT0->MSR |= LPIT_MSR_TIF1_MASK;
 }
 
-int main()
-{
+int main() {
 	/* Clocks configuration and initialization */
 	SOSC_init_8MHz();       /* Initialize system oscilator for 8 MHz xtal */
 	SPLL_init_160MHz();     /* Initialize SPLL to 160 MHz with 8 MHz SOSC */
 	NormalRUNmode_80MHz();  /* Init clocks: 80 MHz sysclk & core, 40 MHz bus, 20 MHz flash */
 
+
 	/* Testing section (Provisional stuff) ========================================================= */
 
-//	Port_init_config();
-
 	LPIT0_init();
-
-
 	Steering_init();
 	PWM_set_duty(M1_PWM, 0);
 	GPIO_setPin(M1_INA);
@@ -82,15 +64,63 @@ int main()
 	for(;;){
 		pos = steering_encoder_read_deg();
 
-		steering_manual_ctrl();
+//    steering_manual_ctrl();
 //		steering_set_position(set_point);
 //		delay(50);
+    
+	init_led();
 
+
+	ros::NodeHandle nh;
+	ros::Subscriber<std_msgs::Float32MultiArray> sub("/board_connection/control_array", &callback);
+
+	std_msgs::String str_msg;
+	pub.topic_ = "/mcu/position";
+	pub.msg_ = &str_msg;
+
+	nh.initNode();
+	nh.advertise(pub);
+	nh.subscribe(sub);
+
+	uint32_t lasttime = 0UL;
+
+	while(1) {
+	  if(s32k148_time_now() - lasttime > 10) {
+	    // For testing purposes
+	    lasttime = s32k148_time_now();
+	  }
+	  nh.spinOnce();
 	}
 
-
-	/* End of Testing section (Provisional stuff) ================================================== */
 
 	return 0;
 }
 
+
+
+void callback(const std_msgs::Float32MultiArray &msg) {
+  std_msgs::String str_msg;
+
+  int control_signal_phi = msg.data[1];
+
+  if(control_signal_phi > 30.0) {
+    str_msg.data = "h";
+	led_toggle();
+	pub.publish(&str_msg);
+  }
+
+}
+
+void init_led(void) {
+  PCC->PCCn[PCC_PORTE_INDEX] = PCC_PCCn_CGC(1);
+  PORTE->PCR[22] = PORT_PCR_MUX(0b001);	//Port E23: MUX = GPIO
+  PTE->PDDR |= 0b1<<22;					//PortE 21-23: Data direction = output
+}
+
+void led_on(void) {
+  PTE->PSOR |= 1<<22;
+}
+
+void led_toggle(void) {
+  PTE->PTOR |= 1<<22;
+}
