@@ -2,7 +2,6 @@
 #include "system.h" /* include peripheral declarations S32K148 */
 #include "std_msgs/String.h"
 #include "std_msgs/Float32MultiArray.h"
-#include "S32K148.h"
 #include "ros.h"
 
 // Include C headers (ie, non C++ headers) in this block
@@ -67,7 +66,7 @@ int main() {
 //    steering_manual_ctrl();
 //		steering_set_position(set_point);
 //		delay(50);
-    
+	}
 	init_led();
 
 
