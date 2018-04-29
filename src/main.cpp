@@ -5,7 +5,6 @@
 extern "C" {
 #include "clocks_and_modes.h"
 #include "Steering.h"
-#include "arm_math.h"
 }
 
 
@@ -41,6 +40,22 @@ void Port_init_config(void)
 }
 
 
+void LPIT0_init (void) {
+  PCC->PCCn[PCC_LPIT_INDEX] = PCC_PCCn_PCS(6);    /* Clock Src = 6 (SPLL2_DIV2_CLK)*/
+  PCC->PCCn[PCC_LPIT_INDEX] |= PCC_PCCn_CGC_MASK; /* Enable clk to LPIT0 regs */
+  LPIT0->MCR = 0x00000001;    /* DBG_EN-0: Timer chans stop in Debug mode */
+}
+
+/* Polling delay function */
+void delay(double ms){
+	  /*Channel 1*/
+	  ms /=1000;
+	  ms *= 40000000;
+	  LPIT0->TMR[1].TVAL = (uint32_t) ms;
+	  LPIT0->TMR[1].TCTRL = 0x00000001; //Enable
+	  while (0 == (LPIT0->MSR & LPIT_MSR_TIF1_MASK)) {}
+	  LPIT0->MSR |= LPIT_MSR_TIF1_MASK;
+}
 
 int main()
 {
@@ -53,16 +68,23 @@ int main()
 
 //	Port_init_config();
 
+	LPIT0_init();
 
-	double pos = 0;
+
 	Steering_init();
 	PWM_set_duty(M1_PWM, 0);
 	GPIO_setPin(M1_INA);
 	GPIO_setPin(M1_EN);
 
+	float32_t pos = 0;
+	float32_t set_point = 0;
+
 	for(;;){
-		pos = steering_encoder_read();
+		pos = steering_encoder_read_deg();
+
 		steering_manual_ctrl();
+//		steering_set_position(set_point);
+//		delay(50);
 
 	}
 

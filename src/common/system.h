@@ -10,6 +10,5 @@
 
 #include "S32K148.h"
 
-#define ARM_MATH_CM4
 
 #endif /* SYSTEM_H_ */

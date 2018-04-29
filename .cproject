@@ -154,6 +154,7 @@
 					<fileInfo id="com.freescale.s32ds.cross.gnu.arm.cortexm.exe.debug.2080422651.Project_Settings/Debugger/cartec-mcu_Release.launch" name="cartec-mcu_Release.launch" rcbsApplicability="disable" resourcePath="Project_Settings/Debugger/cartec-mcu_Release.launch" toolsToInvoke=""/>
 					<fileInfo id="com.freescale.s32ds.cross.gnu.arm.cortexm.exe.debug.2080422651.Project_Settings/Debugger/cartec-mcu_Debug_RAM.launch" name="cartec-mcu_Debug_RAM.launch" rcbsApplicability="disable" resourcePath="Project_Settings/Debugger/cartec-mcu_Debug_RAM.launch" toolsToInvoke=""/>
 					<sourceEntries>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="CMSIS"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HAL"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="MCAL"/>
 						<entry excluding="Linker_Files/S32K1xx_ram.ld|Debugger/cartec-mcu_Debug_RAM.launch|Debugger/cartec-mcu_Release.launch" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Project_Settings"/>
@@ -293,6 +294,7 @@
 					<fileInfo id="com.freescale.s32ds.cross.gnu.arm.cortexm.exe.release.1540701703.Project_Settings/Debugger/cartec-mcu_Debug.launch" name="cartec-mcu_Debug.launch" rcbsApplicability="disable" resourcePath="Project_Settings/Debugger/cartec-mcu_Debug.launch" toolsToInvoke=""/>
 					<fileInfo id="com.freescale.s32ds.cross.gnu.arm.cortexm.exe.release.1540701703.Project_Settings/Debugger/cartec-mcu_Debug_RAM.launch" name="cartec-mcu_Debug_RAM.launch" rcbsApplicability="disable" resourcePath="Project_Settings/Debugger/cartec-mcu_Debug_RAM.launch" toolsToInvoke=""/>
 					<sourceEntries>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="CMSIS"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HAL"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="MCAL"/>
 						<entry excluding="Debugger/cartec-mcu_Debug.launch|Linker_Files/S32K1xx_ram.ld|Debugger/cartec-mcu_Debug_RAM.launch" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Project_Settings"/>
@@ -337,6 +339,9 @@
 								<option id="com.freescale.s32ds.cross.gnu.arm.cortexm.tool.c.compiler.option.target.sysroot.775806224" name="Sysroot" superClass="com.freescale.s32ds.cross.gnu.arm.cortexm.tool.c.compiler.option.target.sysroot" useByScannerDiscovery="false" value="--sysroot=&quot;${ARM_EWL_DIR}&quot;" valueType="string"/>
 								<option id="gnu.c.compiler.option.include.paths.1376250566" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${ARM_EWL_DIR}/EWL_C++/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/CMSIS}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/CMSIS/ControllerFunctions}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/CMSIS/Core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/MCAL/ADC}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HAL/Steering}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HAL}&quot;"/>
@@ -372,6 +377,9 @@
 								<option id="com.freescale.s32ds.cross.gnu.arm.cortexm.tool.cpp.compiler.option.target.sysroot.1756470864" name="Sysroot" superClass="com.freescale.s32ds.cross.gnu.arm.cortexm.tool.cpp.compiler.option.target.sysroot" useByScannerDiscovery="false" value="--sysroot=&quot;${ARM_EWL_DIR}&quot;" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.include.paths.1846772967" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HAL}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/CMSIS}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/CMSIS/ControllerFunctions}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/CMSIS/Core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/MCAL/ADC}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HAL/Steering}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HAL}&quot;"/>
@@ -455,6 +463,7 @@
 					<fileInfo id="com.freescale.s32ds.cross.gnu.arm.cortexm.exe.Debug_RAM.Project_Settings/Debugger/cartec-mcu_Debug.launch" name="cartec-mcu_Debug.launch" rcbsApplicability="disable" resourcePath="Project_Settings/Debugger/cartec-mcu_Debug.launch" toolsToInvoke=""/>
 					<fileInfo id="com.freescale.s32ds.cross.gnu.arm.cortexm.exe.Debug_RAM.Project_Settings/Debugger/cartec-mcu_Release.launch" name="cartec-mcu_Release.launch" rcbsApplicability="disable" resourcePath="Project_Settings/Debugger/cartec-mcu_Release.launch" toolsToInvoke=""/>
 					<sourceEntries>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="CMSIS"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HAL"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="MCAL"/>
 						<entry excluding="Debugger/cartec-mcu_Debug.launch|Linker_Files/S32K1xx_flash.ld|Debugger/cartec-mcu_Release.launch" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Project_Settings"/>
