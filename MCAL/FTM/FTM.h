@@ -19,7 +19,4 @@ void FTM_PWM_mode_Init(FTM_PWM_config_t config);
 void PWM_set_duty(PWM_channel, uint32_t value);
 
 
-//void FTM2_Ovf_Reload_IRQHandler (void);
-
-
 #endif /* FTM_H_ */
