@@ -10,6 +10,6 @@
 
 #include "LPUART.h"
 
-void Motor_setup(char Mstring[], char Rstring[]);
+void Motor_setup(int Mdata, int Rdata, char fertig);
 
 #endif /* BREAK_BREAK_H_ */
