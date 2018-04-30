@@ -17,7 +17,7 @@ void Motor_setup (int Mdata, int Rdata, char fertig){
 		char R[] = {0x30 + Rdata/1000, 0x30 + (Rdata/100)%10,
 					0x30 + (Rdata/10)%10, 0x30 + Rdata%10}; //separate the reference variable into each digit for char array
 
-		LPUART1_transmit_char('M');
+		LPUART1_transmit_char('M'); //set maximum speed of motor
 		LPUART1_transmit_char(M[0]);
 		LPUART1_transmit_char(M[1]);
 		LPUART1_transmit_char(M[2]);
