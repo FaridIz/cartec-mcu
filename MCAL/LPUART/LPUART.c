@@ -1,72 +1,54 @@
 /*
- * LPUART.c              Copyright NXP 2016
- * Description: LPUART functions
- * 2015 Sept 28 Kushal Shaw - original version AN5213;
- * 2016 Mar 17  O Romero - ported to S32K144;
- * 2017 Jul 03 SM: Correced "receive" spelling for function
+ * LPUART.c
+ *
+ *  Created on: Apr 6, 2016
+ *      Author: B46911
  */
 
-#include "S32K148.h" /* include peripheral declarations S32K148*/
-#include "LPUART.h"
 
-void LPUART1_init(void)  /* Init. summary: 9600 baud, 1 stop bit, 8 bit format, no parity */
+#include <LPUART.h>
+
+#if (defined(MCU_S32K142) || defined(MCU_S32K144) || defined(MCU_S32K146) || defined(MCU_S32K148))
+
+/* Initialize LPUART, baud rate= 19200, 1 stop bit, 8 bit format, no parity*/
+void LPUART_Init(uint8_t ip_index,LPUART_Type * LPUART_base)
 {
-  PCC->PCCn[PCC_LPUART1_INDEX] &= ~PCC_PCCn_CGC_MASK;    /* Ensure clk disabled for config */
-  PCC->PCCn[PCC_LPUART1_INDEX] |= PCC_PCCn_PCS(0b001)    /* Clock Src= 1 (SOSCDIV2_CLK) */
-                               |  PCC_PCCn_CGC_MASK;     /* Enable clock for LPUART1 regs */
+    PCC->PCCn[ip_index] &= ~PCC_PCCn_CGC_MASK;    /* Ensure clk disabled for config */
+    PCC->PCCn[ip_index] |= PCC_PCCn_PCS(0b001)    /* Clock Src= 1 (SOSCDIV2_CLK) */
+                        |  PCC_PCCn_CGC_MASK;     /* Enable clock for LPUART regs */
 
-  LPUART1->BAUD = 0x0F000034;  /* Initialize for 9600 baud, 1 stop: */
-                               /* SBR=52 (0x34): baud divisor = 8M/9600/16 = ~52 */
-                               /* OSR=15: Over sampling ratio = 15+1=16 */
-                               /* SBNS=0: One stop bit */
-                               /* BOTHEDGE=0: receiver samples only on rising edge */
-                               /* M10=0: Rx and Tx use 7 to 9 bit data characters */
-                               /* RESYNCDIS=0: Resync during rec'd data word supported */
-                               /* LBKDIE, RXEDGIE=0: interrupts disable */
-                               /* TDMAE, RDMAE, TDMAE=0: DMA requests disabled */
-                               /* MAEN1, MAEN2,  MATCFG=0: Match disabled */
+    LPUART_base->BAUD &= ~LPUART_BAUD_SBR_MASK;
+    LPUART_base->BAUD |= 52;    /* For 19200 baud: baud divisor=8M/19200/16 = ~26 */
+    							/* SBR=26 */
+    							/* OSR=16 */
+    							/* SBNS=0: One stop bit */
+    							/* RDMAE=0: DMA RX request disable */
+    							/* TDMAE=0: DMA TX request disable */
+    							/* M10=0: 7-bit to 9-bit data characters*/
 
-  LPUART1->CTRL=0x000C0000;    /* Enable transmitter & receiver, no parity, 8 bit char: */
-                               /* RE=1: Receiver enabled */
-                               /* TE=1: Transmitter enabled */
-                               /* PE,PT=0: No hw parity generation or checking */
-                               /* M7,M,R8T9,R9T8=0: 8-bit data characters*/
-                               /* DOZEEN=0: LPUART enabled in Doze mode */
-                               /* ORIE,NEIE,FEIE,PEIE,TIE,TCIE,RIE,ILIE,MA1IE,MA2IE=0: no IRQ*/
-                               /* TxDIR=0: TxD pin is input if in single-wire mode */
-                               /* TXINV=0: TRansmit data not inverted */
-                               /* RWU,WAKE=0: normal operation; rcvr not in statndby */
-                               /* IDLCFG=0: one idle character */
-                               /* ILT=0: Idle char bit count starts after start bit */
-                               /* SBK=0: Normal transmitter operation - no break char */
-                               /* LOOPS,RSRC=0: no loop back */
+    LPUART_base->CTRL = 0xC0000;    /* PE=0: No hw parity generation or checking */
+    								/* M=0: 8-bit data characters*/
+    								/* DOZEEN=0: LPUART enable in Doze mode */
+    								/* RE=1: Receiver en */
+    								/* TE=1: Transmitter en */
+    								/* RIE=0 Rx int disabled */
+    								/* TIE=0 Tx data reg empty int disabled */
+    								/* TCIE=0 Tx complete int disabled */
 }
 
-void LPUART1_transmit_char(char send) {    /* Function to Transmit single Char */
-  while((LPUART1->STAT & LPUART_STAT_TDRE_MASK)>>LPUART_STAT_TDRE_SHIFT==0);
-                                   /* Wait for transmit buffer to be empty */
-  LPUART1->DATA=send;              /* Send data */
+void LPUART_Send(LPUART_Type * LPUART_base, uint8_t data)
+{
+    while((LPUART_base->STAT & LPUART_STAT_TDRE_MASK)>>LPUART_STAT_TDRE_SHIFT==0); /* Wait for transmit buffer to be empty */
+    LPUART_base->DATA=data;                      								  /* Send data */
 }
 
-void LPUART1_transmit_string(char data_string[])  {  /* Function to Transmit whole string */
+void LPUART_transmit_string(LPUART_Type * LPUART_base, char data_string[])  {  /* Function to Transmit whole string */
   uint32_t i=0;
   while(data_string[i] != '\0')  {           /* Send chars one at a time */
-    LPUART1_transmit_char(data_string[i]);
+    LPUART_Send(LPUART_base, data_string[i]);
     i++;
   }
 }
 
-char LPUART1_receive_char(void) {    /* Function to Receive single Char */
-  char recieve;
-  while((LPUART1->STAT & LPUART_STAT_RDRF_MASK)>>LPUART_STAT_RDRF_SHIFT==0);
-                                     /* Wait for received buffer to be full */
-  recieve= LPUART1->DATA;            /* Read received data*/
-  return recieve;
-}
+#endif
 
-void LPUART1_receive_and_echo_char(void)  {  /* Function to echo received char back */
-  char send = LPUART1_receive_char();        /* Receive Char */
-  LPUART1_transmit_char(send);               /* Transmit same char back to the sender */
-  LPUART1_transmit_char('\n');               /* New line */
-  LPUART1_transmit_char('\r');               /* Return */
-}

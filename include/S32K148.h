@@ -7746,7 +7746,7 @@ typedef struct {
 #define LPUART_BASE_PTRS                         { LPUART0, LPUART1, LPUART2 }
  /** Number of interrupt vector arrays for the LPUART module. */
 #define LPUART_IRQS_ARR_COUNT                    (1u)
- /** Number of interrupt channels for the RX_TX type of LPUART module. */
+ /** Number of interrupt channelLPUART1, s for the RX_TX type of LPUART module. */
 #define LPUART_RX_TX_IRQS_CH_COUNT               (1u)
 /** Interrupt vectors for the LPUART peripheral type */
 #define LPUART_RX_TX_IRQS                        { LPUART0_RxTx_IRQn, LPUART1_RxTx_IRQn, LPUART2_RxTx_IRQn }

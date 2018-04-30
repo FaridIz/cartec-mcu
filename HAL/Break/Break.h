@@ -8,8 +8,9 @@
 #ifndef BREAK_BREAK_H_
 #define BREAK_BREAK_H_
 
-#include "LPUART.h"
+#include <LPUART.h>
 
-void Motor_setup(int Mdata, int Rdata, char fertig);
+void Motor_init (void);
+void Motor_cmds(int Mdata, int Rdata, char fertig);
 
 #endif /* BREAK_BREAK_H_ */
