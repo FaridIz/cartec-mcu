@@ -6,8 +6,8 @@
 extern "C" {
 #include "S32K148.h" /* include peripheral declarations S32K148 */
 #include "clocks_and_modes.h"
-#include "Break.h"
-//#include "LPUART.h"
+//#include "Break.h"
+#include "LPUART.h"
 }
 
 int data = 0;
@@ -35,12 +35,22 @@ void delay(double ms){
 	  LPIT0->MSR |= LPIT_MSR_TIF1_MASK;
 }
 
-//void Motor_setup (char Mstring[], char Rstring[]){
-//    LPUART1_transmit_string("P0\n\r");     /* Transmit char string */
-//    LPUART1_transmit_string("S0\n\r");     /* Transmit char string */
+void Motor_setup (char Mstring[], char Rstring[]){
+    LPUART1_transmit_string("P0\n\r");     /* Transmit char string */
+    LPUART1_transmit_string("S0\n\r");     /* Transmit char string */
 //    LPUART1_transmit_string(Mstring);     /* Transmit char string */
+	LPUART1_transmit_char('M');
+	LPUART1_transmit_char(Mstring[0]);
+	LPUART1_transmit_char(Mstring[1]);
+	LPUART1_transmit_string("\n\r");
 //    LPUART1_transmit_string(Rstring);     /* Transmit char string */
-//}
+	LPUART1_transmit_char('R');
+	LPUART1_transmit_char(Rstring[0]);
+	LPUART1_transmit_char(Rstring[1]);
+	LPUART1_transmit_char(Rstring[2]);
+	LPUART1_transmit_char(Rstring[3]);
+	LPUART1_transmit_string("\n\r");
+}
 
 int main(void)
 {
@@ -52,8 +62,10 @@ int main(void)
 
     LPUART1_init();        /* Initialize LPUART @ 9600*/
 
-    char M[] = "M50\n\r";
-    char R[] = "R1800\n\r";
+    //char newline[] = "\n\r";
+    int dat = 50;
+    char M[] = {dat};
+    char R[] = "1800";
     Motor_setup(M,R);
 
 //    LPUART1_transmit_string("Input character to echo...\n\r"); /* Transmit char string */
