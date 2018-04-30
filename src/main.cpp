@@ -9,7 +9,9 @@ extern "C" {
 #include "Break.h"
 }
 
-int data = 0;
+int Mdata = 50; //reference of 'max speed' for break motor
+int Rdata = 450; //reference of 'go to angle' for break motor
+char fertig = 0; //variable to check if breaking has finished or not
 
 void PORT_init (void) {
     PCC->PCCn[PCC_PORTC_INDEX ]|=PCC_PCCn_CGC_MASK; /* Enable clock for PORTC */
@@ -33,9 +35,6 @@ int main(void)
 
     LPUART1_init();        /* Initialize LPUART @ 9600*/
 
-    int Mdata = 50; //reference of 'max speed' for break motor
-    int Rdata = 450; //reference of 'go to angle' for break motor
-    char fertig = 0; //variable to check if breaking has finished or not
     Motor_setup(Mdata,Rdata,fertig);
 
     for(;;) {
