@@ -14,9 +14,6 @@ int Rdata = 90; //reference of 'go to angle' for break motor
 char fertig = 0; //variable to check if breaking has finished or not
 
 void PORT_init (void) {
-//    PCC->PCCn[PCC_PORTC_INDEX ]|=PCC_PCCn_CGC_MASK; /* Enable clock for PORTC */
-//    PORTC->PCR[6]|=PORT_PCR_MUX(2);           /* Port C6: MUX = ALT2,UART1 TX */
-//    PORTC->PCR[7]|=PORT_PCR_MUX(2);           /* Port C7: MUX = ALT2,UART1 RX */
 	PCC->PCCn[PCC_PORTA_INDEX ]|=PCC_PCCn_CGC_MASK; /* Enable clock for PORTA */
 	PORTA->PCR[8]|=PORT_PCR_MUX(2);           /* Port A8: MUX = ALT2,UART1 TX */
 	PORTA->PCR[9]|=PORT_PCR_MUX(2);           /* Port A9: MUX = ALT2,UART1 RX */
