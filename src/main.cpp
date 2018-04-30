@@ -1,98 +1,68 @@
+/*
+ * main.c       UART transmission simple example
+ * 2017 Jul O Romero / Agustin Diaz - Initial version
+ */
 
-#include "system.h" /* include peripheral declarations S32K148 */
-
-// Include C headers (ie, non C++ headers) in this block
 extern "C" {
+#include "S32K148.h" /* include peripheral declarations S32K148 */
 #include "clocks_and_modes.h"
-#include "ADC.h"
-#include "Steering.h"
-#include "lpi2c.h"
+#include "Break.h"
+//#include "LPUART.h"
 }
 
-///* Extra declarations of ports to be used, not already under implementation*/
-//void Port_init_config(void)
-//{
-//	/* Enable clock for PORTs */
-//	PCC->PCCn[PCC_PORTA_INDEX] = PCC_PCCn_CGC_MASK;
-//	PCC->PCCn[PCC_PORTB_INDEX] = PCC_PCCn_CGC_MASK;
-//	PCC->PCCn[PCC_PORTC_INDEX] = PCC_PCCn_CGC_MASK;
-//	PCC->PCCn[PCC_PORTD_INDEX] = PCC_PCCn_CGC_MASK;
-//	PCC->PCCn[PCC_PORTE_INDEX] = PCC_PCCn_CGC_MASK;
-//
-//	/* Configure GPIO outputs for board LEDs */
-//	PORTE->PCR[21] = PORT_PCR_MUX(1);	// Red
-//	PORTE->PCR[22] = PORT_PCR_MUX(1);	// Green
-//	PORTE->PCR[23] = PORT_PCR_MUX(1);	// Blue
-//	PTE->PDDR |= (0b111<<21);
-//
-//	/* Configure SW3 AND SW4 as input buttons */
-//	PORTC->PCR[12] = PORT_PCR_MUX(1)		// Port C12: MUX = GPIO
-//				   | PORT_PCR_PFE(1);		// 			 Input filter enabled
-//	PORTC->PCR[13] = PORT_PCR_MUX(1)		// Port C13: MUX = GPIO
-//				   | PORT_PCR_PFE(1);		// 			 Input filter enabled
-//	PTC->PDDR &= ~(0b11<<12);				// Data direction = input
-//
-//	/* Cruise control driver */
-//	PORTC->PCR[29] = PORT_PCR_MUX(2);		// Port C29: FTM5_CH2		ENA
-//	PORTC->PCR[30] = PORT_PCR_MUX(1);		// Port C30: GPIO-output	IN1
-//	PORTC->PCR[31] = PORT_PCR_MUX(1);		// Port C31: GPIO-output	IN2
-//											// Port ###: GPIO-output	ENB/IN3
-//	PTC->PDDR |= (0b111<<29);
-//}
-//
-///* Temporary ADC function for testing */
-//uint32_t temporary_adc_func(void){
-//	convertAdcChan(0b101100);		/* Convert Channel AD28 to pot on EVB */
-//	while(adc_complete()==0){}      /* Wait for conversion complete flag */
-//	return read_adc_chx();			/* Get channel's conversion results in mv */
+int data = 0;
+
+void PORT_init (void) {
+    PCC->PCCn[PCC_PORTC_INDEX ]|=PCC_PCCn_CGC_MASK; /* Enable clock for PORTC */
+    PORTC->PCR[6]|=PORT_PCR_MUX(2);           /* Port C6: MUX = ALT2,UART1 TX */
+    PORTC->PCR[7]|=PORT_PCR_MUX(2);           /* Port C7: MUX = ALT2,UART1 RX */
+}
+
+void WDOG_disable (void){
+    WDOG->CNT=0xD928C520;     /* Unlock watchdog */
+    WDOG->TOVAL=0x0000FFFF;   /* Maximum timeout value */
+    WDOG->CS = 0x00002100;    /* Disable watchdog */
+}
+
+/* Polling delay function */
+void delay(double ms){
+	  /*Channel 1*/
+	  ms /=1000;
+	  ms *= 40000000;
+	  LPIT0->TMR[1].TVAL = (uint32_t) ms;
+	  LPIT0->TMR[1].TCTRL = 0x00000001; //Enable
+	  while (0 == (LPIT0->MSR & LPIT_MSR_TIF1_MASK)) {}
+	  LPIT0->MSR |= LPIT_MSR_TIF1_MASK;
+}
+
+//void Motor_setup (char Mstring[], char Rstring[]){
+//    LPUART1_transmit_string("P0\n\r");     /* Transmit char string */
+//    LPUART1_transmit_string("S0\n\r");     /* Transmit char string */
+//    LPUART1_transmit_string(Mstring);     /* Transmit char string */
+//    LPUART1_transmit_string(Rstring);     /* Transmit char string */
 //}
 
-void PORT_setup(void)
+int main(void)
 {
-	PCC->PCCn[PCC_PORTD_INDEX] |= PCC_PCCn_CGC_MASK;	/* CGC=1: Clock enabled for PORTD */
-	PCC->PCCn[PCC_PORTC_INDEX] |= PCC_PCCn_CGC_MASK;	/* CGC=1: Clock enabled for PORTC */
+    WDOG_disable();        /* Disable WDGO*/
+    SOSC_init_8MHz();      /* Initialize system oscilator for 8 MHz xtal */
+    SPLL_init_160MHz();    /* Initialize SPLL to 160 MHz with 8 MHz SOSC */
+    NormalRUNmode_80MHz(); /* Init clocks: 80 MHz sysclk & core, 40 MHz bus, 20 MHz flash */
+    PORT_init();           /* Configure ports */
 
-	PORTC->PCR[31] |= PORT_PCR_MUX(4)	/* LPI2C1_SDA */
-                   |  PORT_PCR_PE_MASK
-                   |  PORT_PCR_PS(1);
-	PORTD->PCR[19] |= PORT_PCR_MUX(4)	/* LPI2C1_SCL */
-                   |  PORT_PCR_PE_MASK
-                   |  PORT_PCR_PS(1);
+    LPUART1_init();        /* Initialize LPUART @ 9600*/
+
+    char M[] = "M50\n\r";
+    char R[] = "R1800\n\r";
+    Motor_setup(M,R);
+
+//    LPUART1_transmit_string("Input character to echo...\n\r"); /* Transmit char string */
+
+    for(;;) {
+        //LPUART1_transmit_char('>');  		/* Transmit prompt character*/
+        //LPUART1_receive_and_echo_char();	/* Wait for input char, receive & echo it*/
+		//LPUART1_transmit_string("S100");     /* Transmit char string */
+    }
 }
 
-int main()
-{
-	uint8_t send[] = {0x10, 2, 100};
-
-	/* Clocks configuration and initialization */
-	SOSC_init_8MHz();       /* Initialize system oscilator for 8 MHz xtal */
-	SPLL_init_160MHz();     /* Initialize SPLL to 160 MHz with 8 MHz SOSC */
-	NormalRUNmode_80MHz();  /* Init clocks: 80 MHz sysclk & core, 40 MHz bus, 20 MHz flash */
-
-	/* Testing section (Provisional stuff) ========================================================= */
-
-	PORT_setup();
-
-	LPI2C1_Init();
-	LPI2C1_WriteBuffer(I2C_WRITE, send, sizeof(send));
-	LPI2C1_Transmit();
-
-//	Port_init_config();
-//	ADC_init();            /* Init ADC resolution 12 bit*/
-//	uint32_t adcval;
-//	double pos = 0;
-//	Steering_init();
-//	PWM_set_duty(M1_PWM, 0);
-//	GPIO_setPin(M1_INA);
-//	GPIO_setPin(M1_EN);
-
-	for(;;){
-//		pos = steering_encoder_read();
-//		adcval = temporary_adc_func();
-	}
-
-	/* End of Testing section (Provisional stuff) ================================================== */
-
-	return 0;
-}
 
