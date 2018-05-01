@@ -60,9 +60,9 @@ PWM_channel M2_PWM = {
 };
 
 arm_pid_instance_f32 steering_pid = {
-	.Kd = 2,
-	.Ki = 0.1,
-	.Kp = 4
+	.Kd = 0.00654,
+	.Ki = 0.0522,
+	.Kp = 0.125
 };
 
 #define pot_vs_pwmduty_relation  (2000/channel_1_PWM.mod)
@@ -71,6 +71,7 @@ arm_pid_instance_f32 steering_pid = {
 /* =================================================================================== */
 
 int32_t count = 0;
+uint8_t pid_reset_flag = 0x00;
 void count_revolutions(void);
 void set_direction(steer_direction dir);
 uint32_t potentiometer_position(void);
@@ -122,10 +123,15 @@ void steering_manual_ctrl(void){
 
 void steering_set_position(float32_t set_point){
 	float32_t err = set_point - steering_encoder_read_deg();
-	if(err < 3 || err > -3){
+	if((err < PID_RESET_THRESHOLD || err > -PID_RESET_THRESHOLD) && ~pid_reset_flag){
 		arm_pid_reset_f32(&steering_pid);
+		pid_reset_flag = 0xff;
 	}
-	float32_t out = arm_pid_f32(&steering_pid, err);
+	if((err > PID_RESET_THRESHOLD || err < -PID_RESET_THRESHOLD) && pid_reset_flag){
+		pid_reset_flag = 0x00;
+	}
+
+	float32_t out = arm_pid_f32(&steering_pid, err)*80;
 
 	if(out < 0){
 		GPIO_clearPin(M1_INA);
