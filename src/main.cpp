@@ -42,6 +42,16 @@ void delay(double ms){
 	  LPIT0->MSR |= LPIT_MSR_TIF1_MASK;
 }
 
+void count_time(){
+	  /*Channel 1*/
+
+	  LPIT0->TMR[1].TVAL = (uint32_t) 40000000;
+	  LPIT0->TMR[1].TCTRL = 0x00000001; //Enable
+}
+
+
+float32_t control_reference = 0;
+
 int main() {
 	/* Clocks configuration and initialization */
 	SOSC_init_8MHz();       /* Initialize system oscilator for 8 MHz xtal */
@@ -82,13 +92,18 @@ int main() {
 	nh.subscribe(sub);
 
 	uint32_t lasttime = 0UL;
-
+	uint32_t init = 0;
+	uint32_t end = 0;
 	while(1) {
 	  if(s32k148_time_now() - lasttime > 10) {
-	    // For testing purposes
+		steering_set_position(control_reference);
 	    lasttime = s32k148_time_now();
 	  }
+	  led_toggle();
+   	  init = LPIT0->TMR[1].CVAL;
 	  nh.spinOnce();
+	  end = LPIT0->TMR[1].CVAL;
+
 	}
 	return 0;
 }
@@ -97,13 +112,13 @@ int main() {
 void callback(const std_msgs::Float32MultiArray &msg) {
   std_msgs::String str_msg;
 
-  int control_signal_phi = msg.data[1];
+  control_reference = msg.data[1];
 
-  if(control_signal_phi > 30.0) {
-    str_msg.data = "h";
-	led_toggle();
-	pub.publish(&str_msg);
-  }
+  //if(control_signal_phi > 30.0) {
+  str_msg.data = "h";
+//	led_toggle();
+  pub.publish(&str_msg);
+  //}
 
 }
 
