@@ -86,52 +86,41 @@ int main() {
 	GPIO_setPin(M1_INA);
 	GPIO_setPin(M1_EN);
 
-//	float32_t pos = 0;
-//	float32_t set_point = 0;
+	float32_t pos = 0;
 
 	PORT_init_dummy();
 	init_led();
 	LPUART_Init(PCC_LPUART1_INDEX, LPUART1);
-//	int i;
-//	char temp = 0;
-//	char noise[20] = {};
-//	for(i=0; i<20 ;i++){
-//		noise[i] = 0;
-//	}
 
-	int i;
-//	uint8_t input[100];
-//	for(i=0; i<100 ;i++){
-//		noise[i] = 0;
-//	}
 
-	int16_t input = 0;
-	uint16_t angle = 0;
-	for(;;){
-//		pos = steering_encoder_read_deg();
+	for(float32_t set_point = 90;;){
+
+		/* Uncomment following line to control the motor manually */
+		// steering_manual_ctrl();
+		pos = steering_encoder_read_deg();
 //		steering_manual_ctrl();
-//		steering_set_position(set_point);
-//		delay(50);
 
-//		LPUART_Send(LPUART1, 'a');
-//		delay(1000);
+
+ 		steering_set_position(set_point);
+ 		delay(10);
+
 
 
 //		input = ((int8_t) LPUART1_receive_char_dummy() - 127) * 2;
-		input = ( (int16_t) LPUART1_receive_char_dummy()-127 )*2;
-
-		if(input>=0){
-			set_direction(CW);
-			PWM_set_duty(M1_PWM, input);
-		}
-		else{
-			set_direction(CCW);
-			PWM_set_duty(M1_PWM, -input);
-		}
-
-		angle = (uint16_t) (steering_encoder_read_rev()*4096 + 30000);
-
-		mandar(angle);
+//		input = ( (int16_t) LPUART1_receive_char_dummy()-127 )*2;
+//
+//		if(input>=0){
+//			set_direction(CW);
+//			PWM_set_duty(M1_PWM, input);
+//		}
+//		else{
+//			set_direction(CCW);
+//			PWM_set_duty(M1_PWM, -input);
+//		}
+//
+//		angle = (uint16_t) (steering_encoder_read_rev()*4096 + 30000);
+//
+//		mandar(angle);
 
 
 
