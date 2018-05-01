@@ -60,13 +60,13 @@ int main() {
 	float32_t pos = 0;
 	float32_t set_point = 0;
 
-	for(;;){
-		pos = steering_encoder_read_deg();
-
-//    steering_manual_ctrl();
-//		steering_set_position(set_point);
-//		delay(50);
-	}
+//	for(;;){
+//		pos = steering_encoder_read_deg();
+//
+////    steering_manual_ctrl();
+////		steering_set_position(set_point);
+////		delay(50);
+//	}
 	init_led();
 
 
@@ -90,11 +90,8 @@ int main() {
 	  }
 	  nh.spinOnce();
 	}
-
-
 	return 0;
 }
-
 
 
 void callback(const std_msgs::Float32MultiArray &msg) {

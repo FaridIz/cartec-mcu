@@ -76,18 +76,6 @@ int8_t LPUART_readable(LPUART_config_t config){
 		return -1;
 }
 
-int16_t LPUART_receive(LPUART_config_t config) {
-	// Quick fix to clean overrun flag
-	// TODO Fix this a better way
-	if (config.LPUART_instance->STAT & LPUART_STAT_OR_MASK)
-		config.LPUART_instance->STAT |= LPUART_STAT_OR_MASK;
-
-	if (config.LPUART_instance->STAT & LPUART_STAT_RDRF_MASK)
-	  return config.LPUART_instance->DATA;
-	else
-	  return -1;
-}
-
 uint8_t LPUART_get_uint8(LPUART_config_t config){
 	if (config.LPUART_instance->STAT & LPUART_STAT_OR_MASK)
 		config.LPUART_instance->STAT |= LPUART_STAT_OR_MASK;

@@ -29,5 +29,7 @@ void s32k148_uart_send_byte(uint8_t tx_byte) {
 
 // returns -1 in the case of absence of data
 int16_t s32k148_uart_receive_byte(void) {
-	return LPUART_receive(ros_com);
+	if(LPUART_readable(ros_com) == 1)
+		return LPUART_get_uint8(ros_com);
+	return -1;
 }

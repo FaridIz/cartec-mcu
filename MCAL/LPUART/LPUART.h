@@ -17,7 +17,6 @@
 void LPUART_init(LPUART_config_t config);
 
 void LPUART_send(LPUART_config_t config, uint8_t data);
-int16_t LPUART_receive(LPUART_config_t config);
 uint8_t LPUART_get_uint8(LPUART_config_t config);
 int8_t LPUART_readable(LPUART_config_t config);		/* Determine if there is a character available to read.  */
 void LPUART_transmit_string(LPUART_config_t config, uint8_t data_string[]);
