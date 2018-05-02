@@ -9,7 +9,7 @@ extern "C" {
 #include "clocks_and_modes.h"
 #include "Steering.h"
 #include "Scheduler.h"
-#include "Break.h"
+//#include "Break.h"
 }
 
 // Needed for AVR to use virtual functions
@@ -89,7 +89,7 @@ scheduler_task_config_t tasks[3] = {
 				.start_tick	   = 0x01
 		},
 		{
-				.task_callback = azul,
+				.task_callback = steering,
 				.period_ticks  = 2860,
 				.start_tick	   = 0x02
 		},
@@ -129,7 +129,7 @@ int main(void)
 	point_to_node = &nh;
 
 	scheduler_init(&tasks[0], 2, 140); //40000 ticks = 1ms
-	cronometro();
+	//cronometro();
 
 	for(;;){
 
