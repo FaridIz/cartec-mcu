@@ -184,3 +184,4 @@ uint32_t potentiometer_position(void){
 	while(adc_complete()==0){}      /* Wait for conversion complete flag */
 	return read_adc_chx();			/* Get channel's conversion results in mv (0-5000) */
 }
+
