@@ -32,7 +32,8 @@ void Port_init(void){
 	PTE->PDDR |= 0b111<<PTE21;					//PortE 21-23: Data direction = output
 }
 
-ros::NodeHandle nh;
+
+ros::NodeHandle* point_to_node;
 ros::Publisher pub("", 0);
 
 
@@ -76,7 +77,7 @@ void steering(void){
 }
 
 void noderos(void){
-	nh.spinOnce();
+	point_to_node->spinOnce();
 }
 
 
@@ -105,6 +106,8 @@ int main(void)
 	SPLL_init_160MHz();		/* And SPLLDIV1 divide by 2; SPLLDIV2 divide by 4 */
 	NormalRUNmode_80MHz();
 
+
+	ros::NodeHandle nh;
 	ros::Subscriber<std_msgs::Float32MultiArray> sub("/board_connection/control_array", &ros_callback_ctrl);
 
 	std_msgs::Int8 ros_speaker;
@@ -122,6 +125,7 @@ int main(void)
 	PTE->PCOR |= 1<<PTE22;	//Turn off GREEN led
 	PTE->PCOR |= 1<<PTE23;	//Turn off BLUE led
 
+	point_to_node = &nh;
 
 	scheduler_init(&tasks[0], 2, 140); //40000 ticks = 1ms
 	cronometro();
