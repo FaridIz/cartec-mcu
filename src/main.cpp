@@ -8,6 +8,7 @@
 extern "C" {
 #include "clocks_and_modes.h"
 #include "Steering.h"
+#include "Break.h"
 }
 
 // Needed for AVR to use virtual functions
