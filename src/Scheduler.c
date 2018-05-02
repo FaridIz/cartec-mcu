@@ -14,7 +14,7 @@ uint8_t task_array_size = 0;
 
 
 void NVIC_init_IRQs(void);
-void LPIT0_init(uint32_t scheduler_ticks);
+void LPIT0_init(uint32_t clk_ticks);
 
 
 void scheduler_init(scheduler_task_config_t * scheduler_task_array, uint8_t number_of_tasks ,uint32_t step_ticks){
@@ -53,7 +53,7 @@ void NVIC_init_IRQs(void) {
     S32_NVIC->IP[LPIT0_Ch0_IRQn] = 0xA0;             /* IRQ48-LPIT0 ch0: priority 10 of 0-15*/
 }
 
-void LPIT0_init(uint32_t ticks) {
+void LPIT0_init(uint32_t clk_ticks) {
   PCC->PCCn[PCC_LPIT_INDEX] = PCC_PCCn_PCS(6);    /* Clock Src = 6 (SPLL2_DIV2_CLK)*/
   PCC->PCCn[PCC_LPIT_INDEX] |= PCC_PCCn_CGC_MASK; /* Enable clk to LPIT0 regs */
   LPIT0->MCR = 0x00000001;    /* DBG_EN-0: Timer chans stop in Debug mode */
@@ -63,7 +63,7 @@ void LPIT0_init(uint32_t ticks) {
 
   LPIT0->MIER=LPIT_MIER_TIE0_MASK;  /* Enable timer interrupt channel 0*/
 
-  LPIT0->TMR[0].TVAL = ticks;    /* Chan 0 Timeout period: 40M clocks */
+  LPIT0->TMR[0].TVAL = clk_ticks;    /* Chan 0 Timeout period: 40M clocks */
   LPIT0->TMR[0].TCTRL = 0x00000001; /* T_EN=1: Timer channel is enabled */
                               /* CHAIN=0: channel chaining is disabled */
                               /* MODE=0: 32 periodic counter mode */

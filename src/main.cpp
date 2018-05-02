@@ -19,7 +19,6 @@ void __cxa_pure_virtual(void) {}
 void ros_callback_ctrl(const std_msgs::Float32MultiArray &msg);
 
 
-
 #define PTE21 21
 #define PTE22 22
 #define PTE23 23
@@ -52,7 +51,12 @@ void delay(double ms){
 	  LPIT0->TMR[1].TCTRL = 0x00000001; //Enable
 	  while (0 == (LPIT0->MSR & LPIT_MSR_TIF1_MASK)) {}
 	  LPIT0->MSR |= LPIT_MSR_TIF1_MASK;
+}
 
+void cronometro(void){
+	  /*Channel 1*/
+	  LPIT0->TMR[1].TVAL = (uint32_t) 40000000;
+	  LPIT0->TMR[1].TCTRL = 0x00000001; //Enable
 }
 
 void rojo(void){
@@ -78,20 +82,20 @@ void noderos(void){
 
 scheduler_task_config_t tasks[3] = {
 		{
-				.task_callback = rojo,
-				.period_ticks  = 250,
+				.task_callback = noderos,
+				.period_ticks  = 0x02,
 				.start_tick	   = 0x01
 		},
 		{
 				.task_callback = azul,
-				.period_ticks  = 250,
-				.start_tick	   = 252
+				.period_ticks  = 2860,
+				.start_tick	   = 0x02
 		},
-		{
-				.task_callback = verde,
-				.period_ticks  = 250,
-				.start_tick	   = 503
-		}
+//		{
+//				.task_callback = verde,
+//				.period_ticks  = 250,
+//				.start_tick	   = 503
+//		}
 };
 
 
@@ -119,7 +123,8 @@ int main(void)
 	PTE->PCOR |= 1<<PTE23;	//Turn off BLUE led
 
 
-	scheduler_init(&tasks[0], 3, 40000); //40000 ticks = 1ms
+	scheduler_init(&tasks[0], 2, 140); //40000 ticks = 1ms
+	cronometro();
 
 	for(;;){
 
