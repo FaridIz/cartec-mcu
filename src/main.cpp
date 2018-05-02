@@ -60,18 +60,11 @@ void rojo(void){
 }
 
 void azul(void){
-	azul_flag = 1;
-	PTE->PSOR |= 1<<PTE23;
-	delay(4);
-	delay(4);
-	PTE->PCOR |= 1<<PTE23;
-	azul_flag = 0;
+	PTE->PTOR |= 1<<PTE23;
 }
 
 void verde(void){
-	PTE->PSOR |= 1<<PTE22;
-	delay(5);
-	PTE->PCOR |= 1<<PTE22;
+	PTE->PTOR |= 1<<PTE22;
 }
 
 void steering(void){
@@ -83,6 +76,23 @@ void noderos(void){
 }
 
 
+scheduler_task_config_t tasks[3] = {
+		{
+				.task_callback = rojo,
+				.period_ticks  = 250,
+				.start_tick	   = 0x01
+		},
+		{
+				.task_callback = azul,
+				.period_ticks  = 250,
+				.start_tick	   = 252
+		},
+		{
+				.task_callback = verde,
+				.period_ticks  = 250,
+				.start_tick	   = 503
+		}
+};
 
 
 int main(void)
@@ -108,12 +118,12 @@ int main(void)
 	PTE->PCOR |= 1<<PTE22;	//Turn off GREEN led
 	PTE->PCOR |= 1<<PTE23;	//Turn off BLUE led
 
-	scheduler_init(rojo, steering, noderos);
+
+	scheduler_init(&tasks[0], 3, 40000); //40000 ticks = 1ms
 
 	for(;;){
-		steering();
-	}
 
+	}
 
 	return 0;
 }
