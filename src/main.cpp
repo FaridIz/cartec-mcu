@@ -1,4 +1,3 @@
-
 #include "system.h" /* include peripheral declarations S32K148 */
 #include "std_msgs/String.h"
 #include "std_msgs/Float32MultiArray.h"
@@ -9,6 +8,7 @@
 extern "C" {
 #include "clocks_and_modes.h"
 #include "Steering.h"
+#include "Scheduler.h"
 }
 
 // Needed for AVR to use virtual functions
@@ -18,22 +18,30 @@ void __cxa_pure_virtual(void) {}
 // Function prototypes
 void ros_callback_ctrl(const std_msgs::Float32MultiArray &msg);
 
+
+
+#define PTE21 21
+#define PTE22 22
+#define PTE23 23
+
+
+void Port_init(void){
+	PCC->PCCn[PCC_PORTE_INDEX] = PCC_PCCn_CGC(1);
+	PORTE->PCR[PTE21] = PORT_PCR_MUX(0b001);	//Port E21: MUX = GPIO
+	PORTE->PCR[PTE22] = PORT_PCR_MUX(0b001);	//Port E22: MUX = GPIO
+	PORTE->PCR[PTE23] = PORT_PCR_MUX(0b001);	//Port E23: MUX = GPIO
+	PTE->PDDR |= 0b111<<PTE21;					//PortE 21-23: Data direction = output
+}
+
+ros::NodeHandle nh;
 ros::Publisher pub("", 0);
-// Subscribers are declared in the main scope due to a compiler bug
 
-/* ================================================================================================= */
 
-void LPIT0_init (void) {
-  PCC->PCCn[PCC_LPIT_INDEX] = PCC_PCCn_PCS(6);    /* Clock Src = 6 (SPLL2_DIV2_CLK)*/
-  PCC->PCCn[PCC_LPIT_INDEX] |= PCC_PCCn_CGC_MASK; /* Enable clk to LPIT0 regs */
-  LPIT0->MCR = 0x00000001;	/* M_CEN=1: enable module clk (allows writing other LPIT0 regs)*/
-}
+uint8_t rojo_flag = 0;
+uint8_t azul_flag = 0;
 
-void LPIT0_chn0_init(uint32_t scheduler_ticks){
-	LPIT0->MIER=LPIT_MIER_TIE0_MASK;  		/* Enable timer interrupt channel 0*/
-	LPIT0->TMR[0].TVAL = scheduler_ticks;	/* Chan 0 Timeout period: 40M clocks */
-	LPIT0->TMR[0].TCTRL = 0x00000001; 		/* T_EN=1: Timer channel is enabled */
-}
+uint16_t pos = 0;
+float32_t control_reference = 0;
 
 /* Polling delay function */
 void delay(double ms){
@@ -44,28 +52,44 @@ void delay(double ms){
 	  LPIT0->TMR[1].TCTRL = 0x00000001; //Enable
 	  while (0 == (LPIT0->MSR & LPIT_MSR_TIF1_MASK)) {}
 	  LPIT0->MSR |= LPIT_MSR_TIF1_MASK;
+
 }
 
-void cronometer(void){
-	/*Channel 1*/
-	LPIT0->TMR[1].TVAL  = (uint32_t) 40000000;
-	LPIT0->TMR[1].TCTRL = 0x00000001; //Enable
+void rojo(void){
+	PTE->PTOR |= 1<<PTE21;
 }
 
-ros::NodeHandle nh;
+void azul(void){
+	azul_flag = 1;
+	PTE->PSOR |= 1<<PTE23;
+	delay(4);
+	delay(4);
+	PTE->PCOR |= 1<<PTE23;
+	azul_flag = 0;
+}
 
-uint32_t steurung;
-float32_t control_reference = 0;
+void verde(void){
+	PTE->PSOR |= 1<<PTE22;
+	delay(5);
+	PTE->PCOR |= 1<<PTE22;
+}
+
+void steering(void){
+	steering_manual_ctrl();
+}
+
+void noderos(void){
+	nh.spinOnce();
+}
 
 
-int main() {
-	/* Clocks configuration and initialization */
-	SOSC_init_8MHz();       /* Initialize system oscilator for 8 MHz xtal */
-	SPLL_init_160MHz();     /* Initialize SPLL to 160 MHz with 8 MHz SOSC */
-	NormalRUNmode_80MHz();  /* Init clocks: 80 MHz sysclk & core, 40 MHz bus, 20 MHz flash */
 
 
-	/* ================================================================================================ */
+int main(void)
+{
+	SOSC_init_8MHz();		/* And SOSCDIV1 & SOSCDIV2 =1: divide by 1 */
+	SPLL_init_160MHz();		/* And SPLLDIV1 divide by 2; SPLLDIV2 divide by 4 */
+	NormalRUNmode_80MHz();
 
 	ros::Subscriber<std_msgs::Float32MultiArray> sub("/board_connection/control_array", &ros_callback_ctrl);
 
@@ -77,69 +101,22 @@ int main() {
 	nh.advertise(pub);
 	nh.subscribe(sub);
 
-	/* ================================================================================================ */
+	Port_init();
+	Steering_init();
 
-	LPIT0_init();
+	PTE->PCOR |= 1<<PTE21;	//Turn off RED led
+	PTE->PCOR |= 1<<PTE22;	//Turn off GREEN led
+	PTE->PCOR |= 1<<PTE23;	//Turn off BLUE led
 
-	/* Scheduler initialization */
-	steurung = 0;
-	LPIT0_chn0_init(40000); // 40000 ticks = 1ms
+	scheduler_init(rojo, steering, noderos);
 
-
-//	Steering_init();
-//	uint32_t start = 0;
-//	uint32_t end   = 0;
-//	int32_t time  = 0;
-//
-//	cronometer();
-//	for(;;){
-//		start = LPIT0->TMR[1].CVAL;
-//		steering_set_position(90);
-//		end   = LPIT0->TMR[1].CVAL;
-////		time = start-end;
-//	}
-//
-//
-
-
-
-	while(1) {
-//	  nh.spinOnce();
+	for(;;){
+		steering();
 	}
+
+
 	return 0;
 }
-
-void scheduler_task_1(void);
-uint32_t task_1_flag = 0x01;
-void scheduler_task_2(void);
-uint32_t task_2_flag = 0x02;
-
-
-void scheduler(void){
-	steurung++;
-	if(steurung == task_1_flag){
-		scheduler_task_1();
-		task_1_flag += 0x02;
-	}
-	else if(steurung == task_2_flag){
-		scheduler_task_2();
-		task_2_flag += 0x0A;
-	}
-}
-
-void LPIT0_Ch0_IRQHandler (void){
-	LPIT0->MSR |= LPIT_MSR_TIF0_MASK;	/* Clear LPIT0 timer flag 0 */
-	scheduler();
-}
-
-void scheduler_task_1(void){
-	nh.spinOnce();
-}
-
-void scheduler_task_2(void){
-	steering_manual_ctrl();
-}
-
 
 void ros_callback_ctrl(const std_msgs::Float32MultiArray &msg) {
 	control_reference = msg.data[0];
