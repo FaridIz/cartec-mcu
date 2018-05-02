@@ -100,10 +100,7 @@ int main() {
 	    lasttime = s32k148_time_now();
 	  }
 	  led_toggle();
-   	  init = LPIT0->TMR[1].CVAL;
 	  nh.spinOnce();
-	  end = LPIT0->TMR[1].CVAL;
-
 	}
 	return 0;
 }
@@ -114,12 +111,8 @@ void callback(const std_msgs::Float32MultiArray &msg) {
 
   control_reference = msg.data[1];
 
-  //if(control_signal_phi > 30.0) {
   str_msg.data = "h";
-//	led_toggle();
   pub.publish(&str_msg);
-  //}
-
 }
 
 void init_led(void) {
