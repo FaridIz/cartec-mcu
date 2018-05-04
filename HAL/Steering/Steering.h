@@ -16,7 +16,7 @@
 extern PWM_channel M1_PWM;
 extern PWM_channel M2_PWM;
 
-#define PID_RESET_THRESHOLD 10
+#define PID_RESET_THRESHOLD 6
 
 typedef enum{
 	CW,

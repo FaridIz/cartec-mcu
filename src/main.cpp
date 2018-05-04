@@ -7,8 +7,8 @@
 // Include C headers (ie, non C++ headers) in this block
 extern "C" {
 #include "clocks_and_modes.h"
-#include "Steering.h"
 #include "Scheduler.h"
+#include "Steering.h"
 #include "Break.h"
 }
 
@@ -38,10 +38,7 @@ ros::NodeHandle* point_to_node;
 ros::Publisher pub("", 0);
 
 
-uint8_t rojo_flag = 0;
-uint8_t azul_flag = 0;
-
-uint16_t pos = 0;
+int32_t pos = 0;
 float32_t control_reference = 0;
 
 /* Polling delay function */
@@ -71,33 +68,35 @@ void azul(void){
 
 void verde(void){
 	PTE->PTOR |= 1<<PTE22;
+	pos = steering_encoder_read_deg();
 }
 
 void steering(void){
-	steering_manual_ctrl();
+	steering_set_position(control_reference);
 }
 
 void noderos(void){
-	point_to_node->spinOnce();
+//	point_to_node->spinOnce();
 }
 
+#define NUMBER_OF_TASKS 3
 
-scheduler_task_config_t tasks[3] = {
+scheduler_task_config_t tasks[NUMBER_OF_TASKS] = {
 		{
 				.task_callback = noderos,
 				.period_ticks  = 0x02,
 				.start_tick	   = 0x01
 		},
 		{
-				.task_callback = azul,
-				.period_ticks  = 2860,
+				.task_callback = steering,
+				.period_ticks  = 2858,		// 2858*3.5us = 10.003ms
 				.start_tick	   = 0x02
 		},
-//		{
-//				.task_callback = verde,
-//				.period_ticks  = 250,
-//				.start_tick	   = 503
-//		}
+		{
+				.task_callback = verde,
+				.period_ticks  = 250,
+				.start_tick	   = 503
+		}
 };
 
 
@@ -107,7 +106,7 @@ int main(void)
 	SPLL_init_160MHz();		/* And SPLLDIV1 divide by 2; SPLLDIV2 divide by 4 */
 	NormalRUNmode_80MHz();
 
-
+/* ROS ==================================================================================================== */
 	ros::NodeHandle nh;
 	ros::Subscriber<std_msgs::Float32MultiArray> sub("/board_connection/control_array", &ros_callback_ctrl);
 
@@ -119,6 +118,10 @@ int main(void)
 	nh.advertise(pub);
 	nh.subscribe(sub);
 
+	point_to_node = &nh;
+
+/* End ROS ================================================================================================ */
+
 	Port_init();
 	Steering_init();
 
@@ -126,10 +129,9 @@ int main(void)
 	PTE->PCOR |= 1<<PTE22;	//Turn off GREEN led
 	PTE->PCOR |= 1<<PTE23;	//Turn off BLUE led
 
-	point_to_node = &nh;
 
-	scheduler_init(&tasks[0], 2, 140); //40000 ticks = 1ms
-	cronometro();
+	scheduler_init(&tasks[0], NUMBER_OF_TASKS, 140); //140 * 25ns = 3.5us
+//	cronometro();
 
 	for(;;){
 
