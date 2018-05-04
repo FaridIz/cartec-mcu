@@ -60,9 +60,10 @@ PWM_channel M2_PWM = {
 };
 
 arm_pid_instance_f32 steering_pid = {
-	.Kd = 0.00654,
-	.Ki = 0.0522,
-	.Kp = 0.125
+	.Kp = 0.125, 	//0.125
+	.Ki = 0.0522, 	//0.0522,
+	.Kd = 0.00654 	//0.00654,
+
 };
 
 #define pot_vs_pwmduty_relation  (2000/channel_1_PWM.mod)
@@ -79,10 +80,10 @@ uint32_t potentiometer_position(void);
 /* =================================================================================== */
 
 void Steering_init(void){
-	vnh5019_channel_1_init();
+	vnh5019_channel_2_init();
 	ADC_init();	//12bit resolution
 	FTM_QD_mode_Init(steering_encoder, count_revolutions);
-	FTM_PWM_mode_Init(channel_1_PWM);
+	FTM_PWM_mode_Init(channel_2_PWM);
 	arm_pid_init_f32(&steering_pid, 1);
 }
 
@@ -118,35 +119,38 @@ void steering_manual_ctrl(void){
 		pwm_duty = (value - 3000)/pot_vs_pwmduty_relation;
 		set_direction(CCW);
 	}
-	PWM_set_duty(M1_PWM, pwm_duty);
+	PWM_set_duty(M2_PWM, pwm_duty);
 }
 
 void steering_set_position(float32_t set_point){
-	float32_t err = set_point - steering_encoder_read_deg();
-	if((err < PID_RESET_THRESHOLD || err > -PID_RESET_THRESHOLD) && ~pid_reset_flag){
+	float32_t err;
+	float32_t out;
+
+	err = set_point - steering_encoder_read_deg();
+
+	if( ((-PID_RESET_THRESHOLD < err) && (err < PID_RESET_THRESHOLD)) && ~pid_reset_flag ){
 		arm_pid_reset_f32(&steering_pid);
-		pid_reset_flag = 0xff;
+		pid_reset_flag = 0xFF;
 	}
-	if((err > PID_RESET_THRESHOLD || err < -PID_RESET_THRESHOLD) && pid_reset_flag){
+	else if( ((err < -PID_RESET_THRESHOLD) || (PID_RESET_THRESHOLD < err)) && pid_reset_flag ){
 		pid_reset_flag = 0x00;
 	}
 
-	float32_t out = arm_pid_f32(&steering_pid, err)*80;
+	out = arm_pid_f32(&steering_pid, err);
 
 	if(out < 0){
-		GPIO_clearPin(M1_INA);
-		GPIO_setPin(M1_INB);
+		set_direction(CW);
 		out *= -1;
 	}
 	else{
-		GPIO_setPin(M1_INA);
-		GPIO_clearPin(M1_INB);
+		set_direction(CCW);
 	}
-	if(out > 400){
+	if(out > 400)
 		out = 400;
-	}
-	PWM_set_duty(M1_PWM, out);
+
+	PWM_set_duty(M2_PWM, out);
 }
+
 
 /* =================================================================================== */
 
@@ -161,21 +165,21 @@ void count_revolutions(void){
 
 void set_direction(steer_direction dir){
 	if(dir == CW){
-		GPIO_setPin(M1_EN);
-		GPIO_setPin(M1_INA);
-		GPIO_clearPin(M1_INB);
+		GPIO_setPin(M2_EN);
+		GPIO_setPin(M2_INA);
+		GPIO_clearPin(M2_INB);
 	}
 	else if (dir == CCW){
-		GPIO_setPin(M1_EN);
-		GPIO_clearPin(M1_INA);
-		GPIO_setPin(M1_INB);
+		GPIO_setPin(M2_EN);
+		GPIO_clearPin(M2_INA);
+		GPIO_setPin(M2_INB);
 	}
 	else if (dir == Stop){
-		GPIO_clearPin(M1_INA);
-		GPIO_clearPin(M1_INB);
+		GPIO_clearPin(M2_INA);
+		GPIO_clearPin(M2_INB);
 	}
 	else if (dir == Coast){
-		GPIO_clearPin(M1_EN);
+		GPIO_clearPin(M2_EN);
 	}
 }
 
