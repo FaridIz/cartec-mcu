@@ -10,6 +10,7 @@ extern "C" {
 #include "Scheduler.h"
 #include "Steering.h"
 #include "Break.h"
+#include "OBD2.h"
 }
 
 // Needed for AVR to use virtual functions
