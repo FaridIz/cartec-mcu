@@ -61,7 +61,7 @@ void LPUART_send(LPUART_config_t config, uint8_t data) {
     config.LPUART_instance->DATA = data;
 }
 
-void LPUART_transmit_string(LPUART_config_t config, uint8_t data_string[])  {  /* Function to Transmit whole string */
+void LPUART_transmit_string(LPUART_config_t config, char data_string[])  {  /* Function to Transmit whole string */
   uint16_t i=0;
   while(data_string[i] != '\0')  {           /* Send chars one at a time */
     LPUART_send(config, data_string[i]);
