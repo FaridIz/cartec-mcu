@@ -86,4 +86,8 @@ uint8_t LPUART_get_uint8(LPUART_config_t config){
 }
 
 
+void LPUART_flush_rx(LPUART_config_t config){
+	config.LPUART_instance->FIFO |= LPUART_FIFO_RXFLUSH_MASK;
+}
+
 #endif
