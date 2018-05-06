@@ -131,8 +131,10 @@ int main(void)
 	PTE->PCOR |= 1<<PTE23;	//Turn off BLUE led
 
 
-	scheduler_init(&tasks[0], NUMBER_OF_TASKS, 140); //140 * 25ns = 3.5us
+//	scheduler_init(&tasks[0], NUMBER_OF_TASKS, 140); //140 * 25ns = 3.5us
 //	cronometro();
+
+	obd2_init();
 
 	for(;;){
 
