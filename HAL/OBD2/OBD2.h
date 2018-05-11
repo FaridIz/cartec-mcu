@@ -34,6 +34,8 @@ typedef enum {
 } OBD_PROTOCOLS;
 
 void obd2_init(void);
+void obd2_readPID(uint8_t PID, float *result);
+float obd2_calculator(uint8_t PID, uint32_t message);
 
 #endif /* OBD2_OBD2_H_ */
 

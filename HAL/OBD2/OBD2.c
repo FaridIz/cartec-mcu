@@ -24,7 +24,9 @@ LPUART_config_t OBD2 = {
 		.Baudrate				= 38400
 };
 
+
 void hex2ascii(uint8_t byte, char *L, char *H);
+int8_t ascii2hex(char character);
 
 
 void obd2_init(void){
@@ -54,11 +56,11 @@ void obd2_init(void){
 
 }
 
-void obd2_readPID(uint8_t PID, int32_t *result){
+void obd2_readPID(uint8_t PID, float *result){
 	uint8_t buffer[40] = {0};
 	char L, H;
 	hex2ascii(PID, &L, &H);
-	/* Send message */
+	/* Send message to request PID to ELM327*/
 	LPUART_transmit_string(OBD2, "01");
 	LPUART_send(OBD2, H);
 	LPUART_send(OBD2, L);
@@ -69,14 +71,17 @@ void obd2_readPID(uint8_t PID, int32_t *result){
 		buffer[i] = LPUART_get_uint8(OBD2);
 	}while(buffer[i] != '>' && buffer[i] != '?' );
 
-	/* Extract PID data from string*/
-	uint8_t end;
-	uint32_t temp = 0;
+	/* Extract PID data from buffer*/
 	if(buffer[i] == '>' && buffer[i-3] == ' '){ // Verify that message is not an "UNABLE TO CONNECT" or so.
-		end = i - 3;
+		uint32_t pid_message = 0;
+		uint8_t end = i - 3;
 		for(i=0; i < end; i++){
-
+			if(buffer[i] != ' '){
+				pid_message *= 0x10;
+				pid_message += ascii2hex(buffer[i]);
+			}
 		}
+		*result = obd2_calculator(PID, pid_message);
 	}
 
 }
@@ -87,6 +92,13 @@ void obd2_readPID(uint8_t PID, int32_t *result){
  * 41 11 28 \r\r>
  * 41 0c 00 00 \r\r>
  * */
+
+
+float obd2_calculator(uint8_t PID, uint32_t message){
+	float output = 0;
+	return output;
+}
+
 
 void hex2ascii(uint8_t byte, char *L, char *H){
 	*L = (byte & 0x0F);
@@ -99,7 +111,16 @@ void hex2ascii(uint8_t byte, char *L, char *H){
 	else *H += 0x41;
 }
 
-void ascii2hex(){
-
+int8_t ascii2hex(char character){
+	if(0x30 <= character && character <= 0x39){	// 1 to 9
+		return (character - 0x30);
+	}
+	else if(0x41 <= character && character <= 0x46){ // A to F
+		return (character - 0x37);
+	}
+	else if(0x61 <= character && character <= 0x66){ // a to f
+		return (character - 0x57);
+	}
+	return -1;
 }
 
