@@ -101,7 +101,7 @@ float obd2_calculator(uint8_t PID, uint32_t message){
 		output = (float)( (message & 0xFF00) + (message & 0xFF) ) / 4.0;
 		break;
 	case PID_SPEED:
-
+		output = (float)(message & 0xFF);
 		break;
 	case PID_TPS:
 		output = (float)(message & 0xFF) * 100 / 255;

@@ -134,11 +134,12 @@ int main(void)
 //	scheduler_init(&tasks[0], NUMBER_OF_TASKS, 140); //140 * 25ns = 3.5us
 //	cronometro();
 
+
 	obd2_init();
-	float dummy_tps = 0;
+	float dummy_RPM = 0;
 	for(;;){
-		obd2_readPID(PID_TPS, &dummy_tps);
-		obd2_readPID(PID_RPM, &dummy_tps);
+//		obd2_readPID(PID_TPS, &dummy_tps);
+		obd2_readPID(PID_RPM, &dummy_RPM);
 	}
 
 	return 0;
