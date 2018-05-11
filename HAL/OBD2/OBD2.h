@@ -15,7 +15,7 @@ extern LPUART_config_t OBD2;
 #define BUFFER_SIZE 40
 
 /* Mode 1 PIDs */
-#define PID_RPM 	0x0D	// Answer: 2 bytes
+#define PID_RPM 	0x0C	// Answer: 2 bytes
 #define PID_SPEED 	0x0D	// Answer: 1 byte
 #define PID_TPS 	0x11	// Answer: 1 byte
 

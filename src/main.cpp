@@ -138,6 +138,7 @@ int main(void)
 	float dummy_tps = 0;
 	for(;;){
 		obd2_readPID(PID_TPS, &dummy_tps);
+		obd2_readPID(PID_RPM, &dummy_tps);
 	}
 
 	return 0;

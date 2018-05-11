@@ -95,7 +95,20 @@ void obd2_readPID(uint8_t PID, float *result){
 
 
 float obd2_calculator(uint8_t PID, uint32_t message){
-	float output = 0;
+	float output;
+	switch (PID){
+	case PID_RPM:
+		output = (float)( (message & 0xFF00) + (message & 0xFF) ) / 4.0;
+		break;
+	case PID_SPEED:
+
+		break;
+	case PID_TPS:
+		output = (float)(message & 0xFF) * 100 / 255;
+		break;
+	default:
+		output = 0;
+	}
 	return output;
 }
 
@@ -105,10 +118,10 @@ void hex2ascii(uint8_t byte, char *L, char *H){
 	*H = (byte & 0xF0) >> 4;
 
 	if(*L < 0x0A) *L += 0x30;
-	else *L += 0x41;
+	else *L += 0x37;
 
 	if(*H < 0x0A) *H += 0x30;
-	else *H += 0x41;
+	else *H += 0x37;
 }
 
 int8_t ascii2hex(char character){
@@ -123,4 +136,3 @@ int8_t ascii2hex(char character){
 	}
 	return -1;
 }
-
