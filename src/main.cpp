@@ -10,7 +10,6 @@ extern "C" {
 #include "Scheduler.h"
 #include "Steering.h"
 #include "Break.h"
-#include "OBD2.h"
 }
 
 // Needed for AVR to use virtual functions
@@ -131,15 +130,11 @@ int main(void)
 	PTE->PCOR |= 1<<PTE23;	//Turn off BLUE led
 
 
-//	scheduler_init(&tasks[0], NUMBER_OF_TASKS, 140); //140 * 25ns = 3.5us
+	scheduler_init(&tasks[0], NUMBER_OF_TASKS, 140); //140 * 25ns = 3.5us
 //	cronometro();
 
-
-	obd2_init();
-	float dummy_RPM = 0;
 	for(;;){
-//		obd2_readPID(PID_TPS, &dummy_tps);
-		obd2_readPID(PID_RPM, &dummy_RPM);
+
 	}
 
 	return 0;
