@@ -61,7 +61,7 @@ void LPUART_send(LPUART_config_t config, uint8_t data) {
     config.LPUART_instance->DATA = data;
 }
 
-void LPUART_transmit_string(LPUART_config_t config, uint8_t data_string[])  {  /* Function to Transmit whole string */
+void LPUART_transmit_string(LPUART_config_t config, char data_string[])  {  /* Function to Transmit whole string */
   uint16_t i=0;
   while(data_string[i] != '\0')  {           /* Send chars one at a time */
     LPUART_send(config, data_string[i]);
@@ -85,5 +85,9 @@ uint8_t LPUART_get_uint8(LPUART_config_t config){
 	return config.LPUART_instance->DATA;
 }
 
+
+void LPUART_flush_rx(LPUART_config_t config){
+	config.LPUART_instance->FIFO |= LPUART_FIFO_RXFLUSH_MASK;
+}
 
 #endif
