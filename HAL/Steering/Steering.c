@@ -75,13 +75,12 @@ int32_t count = 0;
 uint8_t pid_reset_flag = 0x00;
 void count_revolutions(void);
 void set_direction(steer_direction dir);
-uint32_t potentiometer_position(void);
 
 /* =================================================================================== */
 
 void Steering_init(void){
 	vnh5019_channel_2_init();
-	ADC_init();	//12bit resolution
+//	ADC_init();	//12bit resolution
 	FTM_QD_mode_Init(steering_encoder, count_revolutions);
 	FTM_PWM_mode_Init(channel_2_PWM);
 	arm_pid_init_f32(&steering_pid, 1);
@@ -104,7 +103,7 @@ float32_t steering_encoder_read_deg(void){
 /* =================================================================================== */
 
 void steering_manual_ctrl(void){
-	uint16_t value = potentiometer_position();
+	uint16_t value = utility_potentiometer_position();
 	uint16_t pwm_duty = 0;
 
 	if(value <= 2000){
@@ -183,9 +182,5 @@ void set_direction(steer_direction dir){
 	}
 }
 
-uint32_t potentiometer_position(void){
-	convertAdcChan(0b101100);		/* Convert Channel AD28 to pot on EVB */
-	while(adc_complete()==0){}      /* Wait for conversion complete flag */
-	return read_adc_chx();			/* Get channel's conversion results in mv (0-5000) */
-}
+
 

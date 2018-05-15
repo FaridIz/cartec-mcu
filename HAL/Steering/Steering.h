@@ -12,6 +12,7 @@
 #include "FTM.h"
 #include "ADC.h"
 #include "arm_math.h"
+#include "utilities.h"
 
 extern PWM_channel M1_PWM;
 extern PWM_channel M2_PWM;
