@@ -15,6 +15,8 @@
 extern PORT_config_t LED_RED;
 extern PORT_config_t LED_GREEN;
 extern PORT_config_t LED_BLUE;
+extern PORT_config_t SW3;
+extern PORT_config_t SW4;
 
 void utilities_init(void);
 uint32_t utility_potentiometer_position(void);
