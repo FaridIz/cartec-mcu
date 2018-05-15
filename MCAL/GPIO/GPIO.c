@@ -16,21 +16,17 @@ void GPIO_pinInit(PORT_config_t config)
 	GPIO_Type *gpio_ptrs[] = GPIO_BASE_PTRS;
 	/* Set Port pin direction */
 	if (config.dir == eInput)
-	{
 		gpio_ptrs[config.port]->PDDR &= ~(1 << config.pin);
-	}
 	else if (config.dir == eOutput)
-	{
 		gpio_ptrs[config.port]->PDDR |= (1 << config.pin);
-	}
 }
 
-void GPIO_readPin(PORT_config_t config)
+uint8_t GPIO_readPin(PORT_config_t config)
 {
 	/* Get proper GPIO pointer */
 	GPIO_Type *gpio_ptrs[] = GPIO_BASE_PTRS;
 	/* Read Pin state*/
-	gpio_ptrs[config.port]->PSOR |= (1 << config.pin);
+	return (gpio_ptrs[config.port]->PDIR & (1 << config.pin)) >> config.pin;
 }
 
 void GPIO_setPin(PORT_config_t config)
