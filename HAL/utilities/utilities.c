@@ -18,6 +18,8 @@ void utilities_init(void){
 	GPIO_pinInit(LED_RED);
 	GPIO_pinInit(LED_GREEN);
 	GPIO_pinInit(LED_BLUE);
+	GPIO_pinInit(SW3);
+	GPIO_pinInit(SW4);
 	ADC_init();	//12bit resolution
 }
 
