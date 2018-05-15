@@ -9,7 +9,6 @@
 #define GPIO_GPIO_H_
 
 #include "system.h" /* include peripheral declarations */
-#include "PORT_config.h"
 #include "PORT.h"
 
 
