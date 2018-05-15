@@ -10,6 +10,10 @@
 
 #include "GPIO.h"
 #include "FTM.h"
+#include "OBD2.h"
+
+void cruisecontrol_init(void);
+void cruisecontrol_release(void);
 
 
 #endif /* CRUISECONTROL_CRUISECONTROL_H_ */
