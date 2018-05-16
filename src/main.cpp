@@ -28,22 +28,6 @@ ros::Publisher pub("", 0);
 int32_t pos = 0;
 float32_t control_reference = 0;
 
-/* Polling delay function */
-void delay(double ms){
-	  /*Channel 1*/
-	  ms /=1000;
-	  ms *= 40000000;
-	  LPIT0->TMR[1].TVAL = (uint32_t) ms;
-	  LPIT0->TMR[1].TCTRL = 0x00000001; //Enable
-	  while (0 == (LPIT0->MSR & LPIT_MSR_TIF1_MASK)) {}
-	  LPIT0->MSR |= LPIT_MSR_TIF1_MASK;
-}
-
-void cronometro(void){
-	  /*Channel 1*/
-	  LPIT0->TMR[1].TVAL = (uint32_t) 40000000;
-	  LPIT0->TMR[1].TCTRL = 0x00000001; //Enable
-}
 
 void rojo(void){
 	GPIO_togglePin(LED_RED);
@@ -106,20 +90,16 @@ int main(void)
 	nh.subscribe(sub);
 
 	point_to_node = &nh;
-
 /* End ROS ================================================================================================ */
 
 	utilities_init();
 	steering_init();
 	cruisecontrol_init();
 
-	GPIO_clearPin(LED_RED);		//Turn off RED led
-	GPIO_clearPin(LED_GREEN);	//Turn off GREEN led
-	GPIO_clearPin(LED_BLUE);	//Turn off BLUE led
 
 
 //	scheduler_init(&tasks[0], NUMBER_OF_TASKS, 140); //140 * 25ns = 3.5us
-//	cronometro();
+//	stopwatch();
 
 	for(;;){
 //		cruisecontrol_dummy();
