@@ -11,6 +11,7 @@ extern "C" {
 #include "Scheduler.h"
 #include "Steering.h"
 #include "Break.h"
+#include "CruiseControl.h"
 }
 
 // Needed for AVR to use virtual functions
@@ -109,18 +110,20 @@ int main(void)
 /* End ROS ================================================================================================ */
 
 	utilities_init();
-	Steering_init();
+	steering_init();
+	cruisecontrol_init();
 
 	GPIO_clearPin(LED_RED);		//Turn off RED led
 	GPIO_clearPin(LED_GREEN);	//Turn off GREEN led
 	GPIO_clearPin(LED_BLUE);	//Turn off BLUE led
 
 
-	scheduler_init(&tasks[0], NUMBER_OF_TASKS, 140); //140 * 25ns = 3.5us
+//	scheduler_init(&tasks[0], NUMBER_OF_TASKS, 140); //140 * 25ns = 3.5us
 //	cronometro();
 
 	for(;;){
-
+//		cruisecontrol_dummy();
+//		steering_manual_ctrl();
 	}
 
 	return 0;
