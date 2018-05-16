@@ -16,4 +16,8 @@ void PORT_init(PORT_config_t config){
 	port_ptrs[config.port]->PCR[config.pin] &= ~PORT_PCR_MUX_MASK;
 	/* Write desire MUX value */
 	port_ptrs[config.port]->PCR[config.pin] |= PORT_PCR_MUX(config.mux);
+
+	/* Enable filter if required*/
+	if(config.attrib.filter == ePassiveFilterEnabled)
+		port_ptrs[config.port]->PCR[config.pin] |= PORT_PCR_PFE_MASK;
 }

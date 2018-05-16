@@ -6,10 +6,12 @@
 
 // Include C headers (ie, non C++ headers) in this block
 extern "C" {
+#include "utilities.h"
 #include "clocks_and_modes.h"
 #include "Scheduler.h"
 #include "Steering.h"
 #include "Break.h"
+#include "CruiseControl.h"
 }
 
 // Needed for AVR to use virtual functions
@@ -18,21 +20,6 @@ void __cxa_pure_virtual(void) {}
 
 // Function prototypes
 void ros_callback_ctrl(const std_msgs::Float32MultiArray &msg);
-
-
-#define PTE21 21
-#define PTE22 22
-#define PTE23 23
-
-
-void Port_init(void){
-	PCC->PCCn[PCC_PORTE_INDEX] = PCC_PCCn_CGC(1);
-	PORTE->PCR[PTE21] = PORT_PCR_MUX(0b001);	//Port E21: MUX = GPIO
-	PORTE->PCR[PTE22] = PORT_PCR_MUX(0b001);	//Port E22: MUX = GPIO
-	PORTE->PCR[PTE23] = PORT_PCR_MUX(0b001);	//Port E23: MUX = GPIO
-	PTE->PDDR |= 0b111<<PTE21;					//PortE 21-23: Data direction = output
-}
-
 
 ros::NodeHandle* point_to_node;
 ros::Publisher pub("", 0);
@@ -59,15 +46,15 @@ void cronometro(void){
 }
 
 void rojo(void){
-	PTE->PTOR |= 1<<PTE21;
+	GPIO_togglePin(LED_RED);
 }
 
 void azul(void){
-	PTE->PTOR |= 1<<PTE23;
+	GPIO_togglePin(LED_BLUE);
 }
 
 void verde(void){
-	PTE->PTOR |= 1<<PTE22;
+	GPIO_togglePin(LED_GREEN);
 	pos = steering_encoder_read_deg();
 }
 
@@ -122,19 +109,21 @@ int main(void)
 
 /* End ROS ================================================================================================ */
 
-	Port_init();
-	Steering_init();
+	utilities_init();
+	steering_init();
+	cruisecontrol_init();
 
-	PTE->PCOR |= 1<<PTE21;	//Turn off RED led
-	PTE->PCOR |= 1<<PTE22;	//Turn off GREEN led
-	PTE->PCOR |= 1<<PTE23;	//Turn off BLUE led
+	GPIO_clearPin(LED_RED);		//Turn off RED led
+	GPIO_clearPin(LED_GREEN);	//Turn off GREEN led
+	GPIO_clearPin(LED_BLUE);	//Turn off BLUE led
 
 
-	scheduler_init(&tasks[0], NUMBER_OF_TASKS, 140); //140 * 25ns = 3.5us
+//	scheduler_init(&tasks[0], NUMBER_OF_TASKS, 140); //140 * 25ns = 3.5us
 //	cronometro();
 
 	for(;;){
-
+//		cruisecontrol_dummy();
+//		steering_manual_ctrl();
 	}
 
 	return 0;
