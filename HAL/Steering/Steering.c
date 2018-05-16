@@ -78,7 +78,7 @@ void set_direction(steer_direction dir);
 
 /* =================================================================================== */
 
-void Steering_init(void){
+void steering_init(void){
 	vnh5019_channel_2_init();
 //	ADC_init();	//12bit resolution
 	FTM_QD_mode_Init(steering_encoder, count_revolutions);

@@ -26,7 +26,7 @@ typedef enum{
 	Coast
 }steer_direction;
 
-void Steering_init(void);
+void steering_init(void);
 float32_t steering_encoder_read_rev(void);
 float32_t steering_encoder_read_deg(void);
 void steering_manual_ctrl(void);
