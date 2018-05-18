@@ -93,6 +93,7 @@ int main(void)
 /* End ROS ================================================================================================ */
 
 	utilities_init();
+	obd2_init();
 	steering_init();
 	cruisecontrol_init();
 	brake_init();
