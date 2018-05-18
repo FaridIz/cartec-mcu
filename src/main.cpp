@@ -102,10 +102,25 @@ int main(void)
 //	scheduler_init(&tasks[0], NUMBER_OF_TASKS, 140); //140 * 25ns = 3.5us
 //	stopwatch();
 
+	float dummy_TPS = 0;
+	uint32_t count = 0;
+	uint32_t t0 = 0;
+	uint32_t t = 0;
+	uint8_t set_point = 40;
+
+	tps_temp = 0;
+
 	for(;;){
 //		cruisecontrol_dummy();
 //		steering_manual_ctrl();
+//		stopwatch();
+//		t0 = LPIT0->TMR[1].CVAL;
+//		obd2_readPID(PID_TPS, &dummy_TPS);
+//		t = (t0 - LPIT0->TMR[1].CVAL)*1000/40000000;
+//		count++;
 
+		cruisecontrol_set_position(set_point);
+//		cruisecontrol_dummy();
 	}
 
 	return 0;
