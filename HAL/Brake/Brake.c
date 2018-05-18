@@ -6,7 +6,7 @@
  */
 
 
-#include <Brake/Brake.h>
+#include <Brake.h>
 
 LPUART_config_t brake_sys = {
 		.pin_rx.port = ePortA,
