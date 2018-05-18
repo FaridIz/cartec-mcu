@@ -10,7 +10,7 @@ extern "C" {
 #include "clocks_and_modes.h"
 #include "Scheduler.h"
 #include "Steering.h"
-#include <Brake/Brake.h>
+#include <Brake.h>
 #include "CruiseControl.h"
 }
 
@@ -95,7 +95,6 @@ int main(void)
 	utilities_init();
 	steering_init();
 	cruisecontrol_init();
-
 	brake_init();
 
 
