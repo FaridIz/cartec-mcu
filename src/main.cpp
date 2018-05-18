@@ -27,19 +27,15 @@ ros::Publisher pub("", 0);
 
 int32_t pos = 0;
 float32_t control_reference = 0;
+float tps_ctrl = 0;
 
-
-void rojo(void){
-	GPIO_togglePin(LED_RED);
+void cruise (void){
+	obd2_readPID(PID_TPS, &tps_ctrl);
+	cruisecontrol_dummy();
 }
 
-void azul(void){
-	GPIO_togglePin(LED_BLUE);
-}
-
-void verde(void){
-	GPIO_togglePin(LED_GREEN);
-	pos = steering_encoder_read_deg();
+void brake (void){
+	dummy_brake();
 }
 
 void steering(void){
@@ -50,7 +46,7 @@ void noderos(void){
 //	point_to_node->spinOnce();
 }
 
-#define NUMBER_OF_TASKS 3
+#define NUMBER_OF_TASKS 4
 
 scheduler_task_config_t tasks[NUMBER_OF_TASKS] = {
 		{
@@ -64,9 +60,14 @@ scheduler_task_config_t tasks[NUMBER_OF_TASKS] = {
 				.start_tick	   = 0x02
 		},
 		{
-				.task_callback = verde,
-				.period_ticks  = 250,
-				.start_tick	   = 503
+				.task_callback = brake,
+				.period_ticks  = 2858,		// 2858*3.5us = 10.003ms
+				.start_tick	   = 0x04
+		},
+		{
+				.task_callback = cruise,
+				.period_ticks  = 28571,		// 28571*3.5us = 99.9985ms ~100ms
+				.start_tick	   = 0x06
 		}
 };
 
@@ -98,7 +99,7 @@ int main(void)
 	brake_init();
 
 
-//	scheduler_init(&tasks[0], NUMBER_OF_TASKS, 140); //140 * 25ns = 3.5us
+	scheduler_init(&tasks[0], NUMBER_OF_TASKS, 140); //140 * 25ns = 3.5us
 //	stopwatch();
 
 	for(;;){

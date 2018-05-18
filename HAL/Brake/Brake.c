@@ -59,3 +59,20 @@ void brake_cmds (int Mdata, int Rdata, char fertig){
 		LPUART_transmit_string(brake_sys, "\n\r");
 	}
 }
+
+uint32_t bandera = 0;
+
+void dummy_brake(void){
+	if (GPIO_readPin(SW3)){
+		if (bandera == 0){
+			brake_cmds(200, 360*5, 0);
+			bandera = 1;
+		}
+	}else{
+		if (bandera == 1){
+			brake_cmds(200, 360*5, 1);
+			bandera = 0;
+		}
+	}
+	delay(20);
+}

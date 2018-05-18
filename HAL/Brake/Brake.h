@@ -9,8 +9,10 @@
 #define BRAKE_BRAKE_H_
 
 #include "LPUART.h"
+#include "utilities.h"
 
 void brake_init(void);
 void brake_cmds(int Mdata, int Rdata, char fertig);
+void dummy_brake(void);
 
 #endif /* BRAKE_BRAKE_H_ */
