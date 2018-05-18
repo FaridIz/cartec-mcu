@@ -1,16 +1,16 @@
 /*
- * Break.h
+ * brake.h
  *
  *  Created on: 29/04/2018
  *      Author: Andres
  */
 
-#ifndef BREAK_BREAK_H_
-#define BREAK_BREAK_H_
+#ifndef BRAKE_BRAKE_H_
+#define BRAKE_BRAKE_H_
 
 #include "LPUART.h"
 
-void Break_init(void);
-void Break_cmds(int Mdata, int Rdata, char fertig);
+void brake_init(void);
+void brake_cmds(int Mdata, int Rdata, char fertig);
 
-#endif /* BREAK_BREAK_H_ */
+#endif /* BRAKE_BRAKE_H_ */

@@ -10,7 +10,7 @@ extern "C" {
 #include "clocks_and_modes.h"
 #include "Scheduler.h"
 #include "Steering.h"
-#include "Break.h"
+#include <Brake/Brake.h>
 #include "CruiseControl.h"
 }
 
@@ -96,6 +96,7 @@ int main(void)
 	steering_init();
 	cruisecontrol_init();
 
+	brake_init();
 
 
 //	scheduler_init(&tasks[0], NUMBER_OF_TASKS, 140); //140 * 25ns = 3.5us
@@ -104,6 +105,7 @@ int main(void)
 	for(;;){
 //		cruisecontrol_dummy();
 //		steering_manual_ctrl();
+
 	}
 
 	return 0;
