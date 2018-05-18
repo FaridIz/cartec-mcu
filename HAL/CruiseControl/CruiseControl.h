@@ -13,8 +13,11 @@
 #include "OBD2.h"
 #include "utilities.h"
 
+float tps_temp;
+
 void cruisecontrol_init(void);
 void cruisecontrol_release(void);
+void cruisecontrol_set_position(uint8_t set_point);
 
 void cruisecontrol_dummy(void);
 

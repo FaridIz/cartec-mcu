@@ -10,7 +10,7 @@
 
 #include "GPIO.h"
 #include "ADC.h"
-#define BENCH_TOOLS	/* Comment line if bench tools are not to be used */
+//#define BENCH_TOOLS	/* Comment line if bench tools are not to be used */
 
 extern PORT_config_t LED_RED;
 extern PORT_config_t LED_GREEN;

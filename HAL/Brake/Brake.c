@@ -74,5 +74,5 @@ void dummy_brake(void){
 			bandera = 0;
 		}
 	}
-	delay(20);
+	//delay(20);
 }

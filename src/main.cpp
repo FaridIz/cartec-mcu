@@ -30,8 +30,7 @@ float32_t control_reference = 0;
 float tps_ctrl = 0;
 
 void cruise (void){
-	obd2_readPID(PID_TPS, &tps_ctrl);
-	cruisecontrol_dummy();
+	cruisecontrol_set_position(20);
 }
 
 void brake (void){
@@ -39,7 +38,7 @@ void brake (void){
 }
 
 void steering(void){
-	steering_set_position(control_reference);
+	steering_set_position(700);
 }
 
 void noderos(void){
