@@ -10,47 +10,29 @@ extern "C" {
 #include "clocks_and_modes.h"
 #include "Scheduler.h"
 #include "Steering.h"
-#include <Brake.h>
+#include "Brake.h"
 #include "CruiseControl.h"
 }
 
-// Needed for AVR to use virtual functions
+/* Needed for AVR to use virtual functions */
 extern "C" void __cxa_pure_virtual(void);
 void __cxa_pure_virtual(void) {}
 
-// Function prototypes
+/* Function prototypes */
 void ros_callback_ctrl(const std_msgs::Float32MultiArray &msg);
+void cruise(void);
+void brake (void);
+void steering(void);
+void noderos(void);
 
 ros::NodeHandle* point_to_node;
 ros::Publisher pub("", 0);
-
 
 int32_t pos = 0;
 float32_t control_reference = 0;
 
 
-void rojo(void){
-	GPIO_togglePin(LED_RED);
-}
-
-void azul(void){
-	GPIO_togglePin(LED_BLUE);
-}
-
-void verde(void){
-	GPIO_togglePin(LED_GREEN);
-	pos = steering_encoder_read_deg();
-}
-
-void steering(void){
-	steering_set_position(control_reference);
-}
-
-void noderos(void){
-//	point_to_node->spinOnce();
-}
-
-#define NUMBER_OF_TASKS 3
+#define NUMBER_OF_TASKS 4
 
 scheduler_task_config_t tasks[NUMBER_OF_TASKS] = {
 		{
@@ -64,9 +46,14 @@ scheduler_task_config_t tasks[NUMBER_OF_TASKS] = {
 				.start_tick	   = 0x02
 		},
 		{
-				.task_callback = verde,
-				.period_ticks  = 250,
-				.start_tick	   = 503
+				.task_callback = brake,
+				.period_ticks  = 2858,		// 2858*3.5us = 10.003ms
+				.start_tick	   = 0x04
+		},
+		{
+				.task_callback = cruise,
+				.period_ticks  = 28571,		// 28571*3.5us = 99.9985ms ~100ms
+				.start_tick	   = 0x06
 		}
 };
 
@@ -98,33 +85,16 @@ int main(void)
 	cruisecontrol_init();
 	brake_init();
 
-
-//	scheduler_init(&tasks[0], NUMBER_OF_TASKS, 140); //140 * 25ns = 3.5us
-//	stopwatch();
-
-	float dummy_TPS = 0;
-	uint32_t count = 0;
-	uint32_t t0 = 0;
-	uint32_t t = 0;
-	uint8_t set_point = 40;
-
-	tps_temp = 0;
+	scheduler_init(&tasks[0], NUMBER_OF_TASKS, 140); //140 * 25ns = 3.5us
 
 	for(;;){
-//		cruisecontrol_dummy();
-//		steering_manual_ctrl();
-//		stopwatch();
-//		t0 = LPIT0->TMR[1].CVAL;
-//		obd2_readPID(PID_TPS, &dummy_TPS);
-//		t = (t0 - LPIT0->TMR[1].CVAL)*1000/40000000;
-//		count++;
 
-		cruisecontrol_set_position(set_point);
-//		cruisecontrol_dummy();
 	}
 
 	return 0;
 }
+
+
 
 void ros_callback_ctrl(const std_msgs::Float32MultiArray &msg) {
 	control_reference = msg.data[0];
@@ -134,3 +104,19 @@ void ros_callback_ctrl(const std_msgs::Float32MultiArray &msg) {
 	pub.publish(&to_send);
 }
 
+
+void cruise (void){
+	cruisecontrol_set_position(20);
+}
+
+void brake (void){
+	dummy_brake();
+}
+
+void steering(void){
+	steering_set_position(700);
+}
+
+void noderos(void){
+//	point_to_node->spinOnce();
+}
