@@ -64,10 +64,10 @@ void cruisecontrol_dummy(void){
 
 }
 
-void cruisecontrol_set_position(uint8_t set_point){
+void cruisecontrol_set_position(uint8_t tps, uint8_t set_point){
 //	float tps_temp = 0;
-	obd2_readPID(PID_TPS, &tps_temp);
-	uint8_t tps = (uint8_t) tps_temp;
+//	obd2_get_PID(PID_TPS, &tps_temp);
+//	uint8_t tps = (uint8_t) tps_temp;
 
 	if(set_point <= 17){
 		cruisecontrol_release();
