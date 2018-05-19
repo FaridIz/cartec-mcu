@@ -6,8 +6,8 @@
 
 // Include C headers (ie, non C++ headers) in this block
 extern "C" {
-#include "utilities.h"
 #include "clocks_and_modes.h"
+#include "utilities.h"
 #include "Scheduler.h"
 #include "Steering.h"
 #include "Brake.h"
@@ -30,6 +30,8 @@ ros::Publisher pub("", 0);
 
 int32_t pos = 0;
 float32_t control_reference = 0;
+uint8_t obd_flag = 0;
+float tps_value = 0;
 
 
 #define NUMBER_OF_TASKS 4
@@ -52,7 +54,7 @@ scheduler_task_config_t tasks[NUMBER_OF_TASKS] = {
 		},
 		{
 				.task_callback = cruise,
-				.period_ticks  = 28571,		// 28571*3.5us = 99.9985ms ~100ms
+				.period_ticks  = 10,		// 28571*3.5us = 99.9985ms ~100ms
 				.start_tick	   = 0x06
 		}
 };
@@ -85,10 +87,26 @@ int main(void)
 	cruisecontrol_init();
 	brake_init();
 
+	GPIO_clearPin(LED_RED);
+	GPIO_clearPin(LED_BLUE);
+
 	scheduler_init(&tasks[0], NUMBER_OF_TASKS, 140); //140 * 25ns = 3.5us
 
+//	float dummy_tps = 0;
+//	float de = 2;
+//	obd2_request_PID(PID_TPS);
 	for(;;){
-
+//		if(obd2_readable() == 1){
+//			GPIO_clearPin(LED_RED);
+//			GPIO_setPin(LED_BLUE);
+//			obd2_read_PID(PID_TPS, &dummy_tps);
+//			obd2_request_PID(PID_TPS);
+//		}
+//		else{
+//			GPIO_clearPin(LED_BLUE);
+//			GPIO_setPin(LED_RED);
+//		}
+//		delay(de);
 	}
 
 	return 0;
@@ -106,7 +124,16 @@ void ros_callback_ctrl(const std_msgs::Float32MultiArray &msg) {
 
 
 void cruise (void){
-	cruisecontrol_set_position(20);
+	if(obd2_readable() == 1){
+//		float tps_value = 0;
+		obd2_read_PID(PID_TPS, &tps_value);
+		cruisecontrol_set_position(tps_value, 20);
+		obd2_request_PID(PID_TPS);
+	}
+	else if(obd_flag == 0){
+		obd_flag = 1;
+		obd2_request_PID(PID_TPS);
+	}
 }
 
 void brake (void){
