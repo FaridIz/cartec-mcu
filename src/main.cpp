@@ -19,7 +19,8 @@ extern "C" void __cxa_pure_virtual(void);
 void __cxa_pure_virtual(void) {}
 
 /* Function prototypes */
-void ros_callback_ctrl(const std_msgs::Float32MultiArray &msg);
+void ros_callback_ctrl_pos(const std_msgs::Float32MultiArray &msg);
+void ros_callback_ctrl_vel(const std_msgs::Float32MultiArray &msg);
 void cruise(void);
 void brake (void);
 void steering(void);
@@ -28,10 +29,23 @@ void noderos(void);
 ros::NodeHandle* point_to_node;
 ros::Publisher pub("", 0);
 
-int32_t pos = 0;
-float32_t control_reference = 0;
-uint8_t obd_flag = 0;
-float tps_value = 0;
+/* HIGH LEVEL CONTROL SIGNALS */
+typedef enum {
+	position,
+	velocity
+}control_mode_t;
+
+struct u_signals_t {
+	control_mode_t control_mode;
+	float steering;
+	float braking;
+	float throttle;
+	float vel_steering;
+	float vel_braking;
+	float vel_throttle;
+};
+
+struct u_signals_t u_signals;
 
 
 #define NUMBER_OF_TASKS 4
@@ -66,20 +80,23 @@ int main(void)
 	SPLL_init_160MHz();		/* And SPLLDIV1 divide by 2; SPLLDIV2 divide by 4 */
 	NormalRUNmode_80MHz();
 
-/* ROS ==================================================================================================== */
+/* ROS ========================== */
 	ros::NodeHandle nh;
-	ros::Subscriber<std_msgs::Float32MultiArray> sub("/board_connection/control_array", &ros_callback_ctrl);
+	ros::Subscriber<std_msgs::Float32MultiArray> sub_pos("/board_connection/control_pos", &ros_callback_ctrl_pos);
+	ros::Subscriber<std_msgs::Float32MultiArray> sub_vel("/board_connection/control_vel", &ros_callback_ctrl_vel);
 
+	// Publisher to check if the MCU is listening to pc/ros
 	std_msgs::Int8 ros_speaker;
 	pub.topic_ = "/mcu/active";
 	pub.msg_ = &ros_speaker;
 
 	nh.initNode();
 	nh.advertise(pub);
-	nh.subscribe(sub);
+	nh.subscribe(sub_pos);
+	nh.subscribe(sub_vel);
 
 	point_to_node = &nh;
-/* End ROS ================================================================================================ */
+/* End ROS ====================== */
 
 	utilities_init();
 	obd2_init();
@@ -87,26 +104,18 @@ int main(void)
 	cruisecontrol_init();
 	brake_init();
 
-	GPIO_clearPin(LED_RED);
-	GPIO_clearPin(LED_BLUE);
+	u_signals.control_mode = position;
+	u_signals.steering = 0;
+	u_signals.braking = 0;
+	u_signals.throttle = 0;
+	u_signals.vel_braking = 0;
+	u_signals.vel_steering = 0;
+	u_signals.vel_throttle = 0;
 
 	scheduler_init(&tasks[0], NUMBER_OF_TASKS, 140); //140 * 25ns = 3.5us
 
-//	float dummy_tps = 0;
-//	float de = 2;
-//	obd2_request_PID(PID_TPS);
 	for(;;){
-//		if(obd2_readable() == 1){
-//			GPIO_clearPin(LED_RED);
-//			GPIO_setPin(LED_BLUE);
-//			obd2_read_PID(PID_TPS, &dummy_tps);
-//			obd2_request_PID(PID_TPS);
-//		}
-//		else{
-//			GPIO_clearPin(LED_BLUE);
-//			GPIO_setPin(LED_RED);
-//		}
-//		delay(de);
+
 	}
 
 	return 0;
@@ -114,26 +123,31 @@ int main(void)
 
 
 
-void ros_callback_ctrl(const std_msgs::Float32MultiArray &msg) {
-	control_reference = msg.data[0];
+void ros_callback_ctrl_pos(const std_msgs::Float32MultiArray &msg) {
+	u_signals.control_mode = position;
+	u_signals.steering = msg.data[0];
+	u_signals.braking = msg.data[1];
+	u_signals.throttle = msg.data[2];
+
+	std_msgs::Int8 to_send;
+	to_send.data = 0;
+	pub.publish(&to_send);
+
+}
+
+void ros_callback_ctrl_vel(const std_msgs::Float32MultiArray &msg) {
+	u_signals.control_mode = velocity;
+	u_signals.vel_steering = msg.data[0];
+	u_signals.vel_braking = msg.data[1];
+	u_signals.vel_throttle = msg.data[2];
 
 	std_msgs::Int8 to_send;
 	to_send.data = 1;
 	pub.publish(&to_send);
 }
 
-
 void cruise (void){
-	if(obd2_readable() == 1){
-//		float tps_value = 0;
-		obd2_read_PID(PID_TPS, &tps_value);
-		cruisecontrol_set_position(tps_value, 20);
-		obd2_request_PID(PID_TPS);
-	}
-	else if(obd_flag == 0){
-		obd_flag = 1;
-		obd2_request_PID(PID_TPS);
-	}
+cruisecontrol_handler(u_signals.throttle);
 }
 
 void brake (void){
@@ -141,7 +155,7 @@ void brake (void){
 }
 
 void steering(void){
-	steering_set_position(700);
+	steering_set_position(u_signals.steering);
 }
 
 void noderos(void){
