@@ -162,5 +162,5 @@ void steering(void){
 }
 
 void noderos(void){
-//	point_to_node->spinOnce();
+	point_to_node->spinOnce();
 }

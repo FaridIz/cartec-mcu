@@ -100,6 +100,10 @@ float steering_encoder_read_deg(void){
 	return (-temp * 360); //(-) sign to keep standard of rotation
 }
 
+float steering_wheels_angle(void){
+	return (steering_encoder_read_deg() / MOTOR_WHEELS_RELATION);
+}
+
 /* =================================================================================== */
 
 void steering_manual_ctrl(void){
@@ -124,6 +128,8 @@ void steering_manual_ctrl(void){
 void steering_set_position(float set_point){
 	float err;
 	float out;
+
+	set_point = set_point * MOTOR_WHEELS_RELATION;
 
 	steer_limit(&set_point);
 
@@ -151,6 +157,7 @@ void steering_set_position(float set_point){
 
 	PWM_set_duty(M2_PWM, out);
 }
+
 
 
 /* =================================================================================== */
