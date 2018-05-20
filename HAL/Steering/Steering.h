@@ -18,6 +18,8 @@ extern PWM_channel M1_PWM;
 extern PWM_channel M2_PWM;
 
 #define PID_RESET_THRESHOLD 6
+#define MAX_CW  -1300
+#define MAX_CCW 1300
 
 typedef enum{
 	CW,
@@ -27,10 +29,10 @@ typedef enum{
 }steer_direction;
 
 void steering_init(void);
-float32_t steering_encoder_read_rev(void);
-float32_t steering_encoder_read_deg(void);
+float steering_encoder_read_rev(void);
+float steering_encoder_read_deg(void);
 void steering_manual_ctrl(void);
-void steering_set_position(float32_t set_point);
+void steering_set_position(float set_point);
 void set_direction(steer_direction dir);
 
 

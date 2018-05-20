@@ -47,6 +47,8 @@ struct u_signals_t {
 
 struct u_signals_t u_signals;
 
+float pos = 0;
+
 
 #define NUMBER_OF_TASKS 4
 
@@ -156,6 +158,7 @@ void brake (void){
 
 void steering(void){
 	steering_set_position(u_signals.steering);
+	pos = steering_encoder_read_deg();
 }
 
 void noderos(void){

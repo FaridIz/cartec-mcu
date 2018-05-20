@@ -68,13 +68,13 @@ arm_pid_instance_f32 steering_pid = {
 
 #define pot_vs_pwmduty_relation  (2000/channel_1_PWM.mod)
 
-
 /* =================================================================================== */
 
 int32_t count = 0;
 uint8_t pid_reset_flag = 0x00;
 void count_revolutions(void);
 void set_direction(steer_direction dir);
+void steer_limit (float *angle);
 
 /* =================================================================================== */
 
@@ -86,18 +86,18 @@ void steering_init(void){
 	arm_pid_init_f32(&steering_pid, 1);
 }
 
-float32_t steering_encoder_read_rev(void){
+float steering_encoder_read_rev(void){
 	float32_t temp = (float32_t) steering_encoder.FTM_config.FTM_instance->CNT;
 	temp /= (float32_t) steering_encoder.mod;
 	temp += (float32_t) count;
-	return temp;
+	return -temp; //(-) sign to keep standard of rotation
 }
 
-float32_t steering_encoder_read_deg(void){
+float steering_encoder_read_deg(void){
 	float32_t temp = (float32_t) steering_encoder.FTM_config.FTM_instance->CNT;
 	temp /= (float32_t) steering_encoder.mod;
 	temp += (float32_t) count;
-	return (temp * 360);
+	return (-temp * 360); //(-) sign to keep standard of rotation
 }
 
 /* =================================================================================== */
@@ -121,9 +121,11 @@ void steering_manual_ctrl(void){
 	PWM_set_duty(M2_PWM, pwm_duty);
 }
 
-void steering_set_position(float32_t set_point){
-	float32_t err;
-	float32_t out;
+void steering_set_position(float set_point){
+	float err;
+	float out;
+
+	steer_limit(&set_point);
 
 	err = set_point - steering_encoder_read_deg();
 
@@ -183,4 +185,11 @@ void set_direction(steer_direction dir){
 }
 
 
-
+void steer_limit (float *angle){
+	if (*angle > MAX_CCW){
+		*angle = MAX_CCW;
+	}
+	else if (*angle < MAX_CW) {
+		*angle = MAX_CW;
+	}
+}
