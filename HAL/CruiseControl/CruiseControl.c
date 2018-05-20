@@ -30,6 +30,9 @@ typedef enum{
 	halt
 }throttle_dir;
 
+uint8_t obd_flag = 0;
+float tps_value = 0;
+
 void set_throttle_action(throttle_dir dir);
 
 void cruisecontrol_init(void){
@@ -64,11 +67,22 @@ void cruisecontrol_dummy(void){
 
 }
 
-void cruisecontrol_set_position(uint8_t tps, uint8_t set_point){
-//	float tps_temp = 0;
-//	obd2_get_PID(PID_TPS, &tps_temp);
-//	uint8_t tps = (uint8_t) tps_temp;
+void cruisecontrol_dummy_2(void){
+	if(GPIO_readPin(SW4)){
+		GPIO_setPin(IN4);
+		GPIO_clearPin(IN2);
+		GPIO_setPin(IN1);
+		PWM_set_duty(ENA_PWM, 400);
+	}
+	else{
+		GPIO_clearPin(IN4);
+		GPIO_clearPin(IN1);
+		GPIO_clearPin(IN2);
+		PWM_set_duty(ENA_PWM, 0);
+	}
+}
 
+void cruisecontrol_set_position(uint8_t tps, uint8_t set_point){
 	if(set_point <= 17){
 		cruisecontrol_release();
 	}
@@ -85,6 +99,18 @@ void cruisecontrol_set_position(uint8_t tps, uint8_t set_point){
 		PWM_set_duty(ENA_PWM, 0);
 	}
 
+}
+
+void cruisecontrol_handler(uint8_t set_point){
+	if(obd2_readable() == 1){
+		obd2_read_PID(PID_TPS, &tps_value);
+		obd2_request_PID(PID_TPS);
+	}
+	else if(obd_flag == 0){
+		obd_flag = 1;
+		obd2_request_PID(PID_TPS);
+	}
+	cruisecontrol_set_position(tps_value, set_point);
 }
 
 /* ========================================================================================= */

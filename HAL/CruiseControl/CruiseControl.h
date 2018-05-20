@@ -18,7 +18,9 @@ float tps_temp;
 void cruisecontrol_init(void);
 void cruisecontrol_release(void);
 void cruisecontrol_set_position(uint8_t tps, uint8_t set_point);
+void cruisecontrol_handler(uint8_t set_point);
 
 void cruisecontrol_dummy(void);
+void cruisecontrol_dummy_2(void);
 
 #endif /* CRUISECONTROL_CRUISECONTROL_H_ */
