@@ -85,7 +85,7 @@ int main(void)
 /* ROS ========================== */
 	ros::NodeHandle nh;
 	ros::Subscriber<std_msgs::Float32MultiArray> sub_pos("/board_connection/control_pos", &ros_callback_ctrl_pos);
-	ros::Subscriber<std_msgs::Float32MultiArray> sub_vel("/board_connection/control_vel", &ros_callback_ctrl_vel);
+//	ros::Subscriber<std_msgs::Float32MultiArray> sub_vel("/board_connection/control_vel", &ros_callback_ctrl_vel);
 
 	// Publisher to check if the MCU is listening to pc/ros
 	std_msgs::Int8 ros_speaker;
@@ -95,7 +95,7 @@ int main(void)
 	nh.initNode();
 	nh.advertise(pub);
 	nh.subscribe(sub_pos);
-	nh.subscribe(sub_vel);
+//	nh.subscribe(sub_vel);
 
 	point_to_node = &nh;
 /* End ROS ====================== */
