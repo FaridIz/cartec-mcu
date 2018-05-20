@@ -56,8 +56,7 @@ void obd2_init(void){
 
 }
 
-void obd2_readPID(uint8_t PID, float *result){
-	uint8_t buffer[40] = {0};
+void obd2_request_PID(uint8_t PID){
 	char L, H;
 	hex2ascii(PID, &L, &H);
 	/* Send message to request PID to ELM327*/
@@ -65,6 +64,15 @@ void obd2_readPID(uint8_t PID, float *result){
 	LPUART_send(OBD2, H);
 	LPUART_send(OBD2, L);
 	LPUART_transmit_string(OBD2, " 1\r");	// To expect 1 single answer and avoid polling
+}
+
+int8_t obd2_readable(void){
+	return LPUART_readable(OBD2);
+}
+
+void obd2_read_PID(uint8_t PID, float *result){
+	/* Receive message from UART */
+	uint8_t buffer[40] = {0};
 	int8_t i=-1;
 	do{
 		i++;
@@ -83,7 +91,12 @@ void obd2_readPID(uint8_t PID, float *result){
 		}
 		*result = obd2_calculator(PID, pid_message);
 	}
+}
 
+void obd2_get_PID(uint8_t PID, float *result){
+	obd2_request_PID(PID);
+	/* Polling */
+	obd2_read_PID(PID, result);
 }
 
 /* ELM327 message examples, when requesting PID, under ATE0, ATL0 and ATH0 configurations:
@@ -112,6 +125,7 @@ float obd2_calculator(uint8_t PID, uint32_t message){
 	return output;
 }
 
+/* ============================================================================================================= */
 
 void hex2ascii(uint8_t byte, char *L, char *H){
 	*L = (byte & 0x0F);

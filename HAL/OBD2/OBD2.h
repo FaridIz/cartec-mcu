@@ -34,7 +34,10 @@ typedef enum {
 } OBD_PROTOCOLS;
 
 void obd2_init(void);
-void obd2_readPID(uint8_t PID, float *result);
+void obd2_request_PID(uint8_t PID);
+int8_t obd2_readable(void);						/* Check if there is a message to be read */
+void obd2_read_PID(uint8_t PID, float *result);		/* Careful: This function can get into polling cycle if there is no data already to be read */
+void obd2_get_PID(uint8_t PID, float *result);		/* Request and polling-read*/
 float obd2_calculator(uint8_t PID, uint32_t message);
 
 #endif /* OBD2_OBD2_H_ */
