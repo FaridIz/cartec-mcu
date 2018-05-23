@@ -67,8 +67,8 @@ void cruisecontrol_dummy(void){
 
 }
 
-void cruisecontrol_dummy_2(void){
-	if(GPIO_readPin(SW4)){
+void cruisecontrol_dummy_2(uint8_t set){
+	if(set){
 		GPIO_setPin(IN4);
 		GPIO_clearPin(IN2);
 		GPIO_setPin(IN1);

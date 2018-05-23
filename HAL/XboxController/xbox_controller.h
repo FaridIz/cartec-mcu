@@ -10,6 +10,7 @@
 
 #include "LPUART.h"
 
+/* Library not implemented. X-box controller is implemented through ROS nodes*/
 
 void xbox_controller_init(void);
 void xbox_controller(float *steering_position, float *brake, float *throttle);

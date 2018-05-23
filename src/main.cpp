@@ -12,7 +12,7 @@ extern "C" {
 #include "Steering.h"
 #include "Brake.h"
 #include "CruiseControl.h"
-#include "xbox_controller.h"
+//#include "xbox_controller.h"
 }
 
 /* Needed for AVR to use virtual functions */
@@ -115,8 +115,6 @@ int main(void)
 	cruisecontrol_init();
 	brake_init();
 
-	xbox_controller_init();
-
 	u_signals.control_mode = position;
 	u_signals.steering = 0;
 	u_signals.braking = 0;
@@ -163,30 +161,20 @@ void ros_callback_ctrl_vel(const std_msgs::Float32MultiArray &msg) {
 
 void cruise (void){
 //	cruisecontrol_handler(u_signals.throttle);
-	if(u_signals.throttle == 0x31)
-		GPIO_setPin(LED_RED);
-	else
-		GPIO_clearPin(LED_RED);
+	cruisecontrol_dummy_2(u_signals.throttle);
 }
 
 void brake (void){
-//	dummy_brake();
-	if(u_signals.braking == 0x32)
-		GPIO_setPin(LED_GREEN);
-	else
-		GPIO_clearPin(LED_GREEN);
+	brake_dummy(u_signals.braking);
 }
 
 void steering(void){
-//	steering_set_position(u_signals.steering);
+	steering_set_position(u_signals.steering);
 //	pos = steering_encoder_read_deg();
-	if(u_signals.steering == 0x33)
-		GPIO_setPin(LED_BLUE);
-	else
-		GPIO_clearPin(LED_BLUE);
+
 }
 
 void noderos(void){
-//	point_to_node->spinOnce();
-	xbox_controller(&u_signals.steering, &u_signals.braking, &u_signals.throttle);
+	point_to_node->spinOnce();
+
 }

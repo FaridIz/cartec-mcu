@@ -13,6 +13,6 @@
 
 void brake_init(void);
 void brake_cmds(int Mdata, int Rdata, char fertig);
-void dummy_brake(void);
+void brake_dummy(uint8_t set);
 
 #endif /* BRAKE_BRAKE_H_ */
