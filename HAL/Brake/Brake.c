@@ -65,15 +65,15 @@ void brake_cmds (int Mdata, int Rdata, char fertig){
 
 uint32_t bandera = 0;
 
-void dummy_brake(void){
-	if (GPIO_readPin(SW3)){
+void brake_dummy(uint8_t set){
+	if (set){
 		if (bandera == 0){
-			brake_cmds(200, 360*5, 0);
+			brake_cmds(200, 200*5, 0);
 			bandera = 1;
 		}
 	}else{
 		if (bandera == 1){
-			brake_cmds(200, 360*5, 1);
+			brake_cmds(200, 200*5, 1);
 			bandera = 0;
 		}
 	}

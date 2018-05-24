@@ -1,5 +1,5 @@
 /*
- * CruiseControl.h
+^	 * CruiseControl.h
  *
  *  Created on: 14/05/2018
  *      Author: Farid
@@ -13,6 +13,9 @@
 #include "OBD2.h"
 #include "utilities.h"
 
+#define THROTTLE_LIMIT 60
+#define ALLOWED_ERROR 10
+
 float tps_temp;
 
 void cruisecontrol_init(void);
@@ -21,6 +24,6 @@ void cruisecontrol_set_position(uint8_t tps, uint8_t set_point);
 void cruisecontrol_handler(uint8_t set_point);
 
 void cruisecontrol_dummy(void);
-void cruisecontrol_dummy_2(void);
+void cruisecontrol_dummy_2(uint8_t set);
 
 #endif /* CRUISECONTROL_CRUISECONTROL_H_ */

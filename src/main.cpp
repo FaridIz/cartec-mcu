@@ -12,6 +12,7 @@ extern "C" {
 #include "Steering.h"
 #include "Brake.h"
 #include "CruiseControl.h"
+//#include "xbox_controller.h"
 }
 
 /* Needed for AVR to use virtual functions */
@@ -82,6 +83,14 @@ int main(void)
 	SPLL_init_160MHz();		/* And SPLLDIV1 divide by 2; SPLLDIV2 divide by 4 */
 	NormalRUNmode_80MHz();
 
+	utilities_init();
+
+	while(GPIO_readPin(SW3) != 1){ // Wait for start button
+		GPIO_togglePin(LED_BLUE);
+		delay(250);
+	}
+	GPIO_setPin(LED_BLUE);
+
 /* ROS ========================== */
 	ros::NodeHandle nh;
 	ros::Subscriber<std_msgs::Float32MultiArray> sub_pos("/board_connection/control_pos", &ros_callback_ctrl_pos);
@@ -100,7 +109,7 @@ int main(void)
 	point_to_node = &nh;
 /* End ROS ====================== */
 
-	utilities_init();
+
 	obd2_init();
 	steering_init();
 	cruisecontrol_init();
@@ -115,6 +124,8 @@ int main(void)
 	u_signals.vel_throttle = 0;
 
 	scheduler_init(&tasks[0], NUMBER_OF_TASKS, 140); //140 * 25ns = 3.5us
+
+	GPIO_clearPin(LED_BLUE);
 
 	for(;;){
 
@@ -149,18 +160,21 @@ void ros_callback_ctrl_vel(const std_msgs::Float32MultiArray &msg) {
 }
 
 void cruise (void){
-cruisecontrol_handler(u_signals.throttle);
+	cruisecontrol_handler(u_signals.throttle);
+//	cruisecontrol_dummy_2(u_signals.throttle);
 }
 
 void brake (void){
-	dummy_brake();
+	brake_dummy(u_signals.braking);
 }
 
 void steering(void){
 	steering_set_position(u_signals.steering);
-	pos = steering_encoder_read_deg();
+//	pos = steering_encoder_read_deg();
+
 }
 
 void noderos(void){
 	point_to_node->spinOnce();
+
 }
