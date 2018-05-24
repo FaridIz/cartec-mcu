@@ -13,6 +13,9 @@
 #include "OBD2.h"
 #include "utilities.h"
 
+#define THROTTLE_LIMIT 60
+#define ALLOWED_ERROR 10
+
 float tps_temp;
 
 void cruisecontrol_init(void);

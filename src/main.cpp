@@ -160,8 +160,8 @@ void ros_callback_ctrl_vel(const std_msgs::Float32MultiArray &msg) {
 }
 
 void cruise (void){
-//	cruisecontrol_handler(u_signals.throttle);
-	cruisecontrol_dummy_2(u_signals.throttle);
+	cruisecontrol_handler(u_signals.throttle);
+//	cruisecontrol_dummy_2(u_signals.throttle);
 }
 
 void brake (void){

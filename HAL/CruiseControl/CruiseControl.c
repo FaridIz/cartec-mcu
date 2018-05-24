@@ -83,8 +83,15 @@ void cruisecontrol_dummy_2(uint8_t set){
 }
 
 void cruisecontrol_set_position(uint8_t tps, uint8_t set_point){
+	if(set_point >= THROTTLE_LIMIT)
+		set_point = THROTTLE_LIMIT;
+
 	if(set_point <= 17){
 		cruisecontrol_release();
+	}
+	else if((set_point - ALLOWED_ERROR) < tps && tps < (set_point + ALLOWED_ERROR)){
+		set_throttle_action(halt);
+		PWM_set_duty(ENA_PWM, 0);
 	}
 	else if(tps < set_point){
 		set_throttle_action(speed_up);
@@ -93,10 +100,6 @@ void cruisecontrol_set_position(uint8_t tps, uint8_t set_point){
 	else if(tps > set_point){
 		set_throttle_action(speed_down);
 		PWM_set_duty(ENA_PWM, 400);
-	}
-	else{
-		set_throttle_action(halt);
-		PWM_set_duty(ENA_PWM, 0);
 	}
 
 }
